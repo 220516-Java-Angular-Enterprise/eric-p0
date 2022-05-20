@@ -57,5 +57,9 @@ public class User {
                 ", role='" + role + '\'' +
                 '}';
     }
+
+    public String toFileString(){
+        return id + "," + username + "," + password  + "," + role + "\n";
+    }
 }
 
