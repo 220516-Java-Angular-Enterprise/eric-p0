@@ -1,23 +1,31 @@
 package com.revature.phuflix.daos;
 
 import com.revature.phuflix.models.User;
+import com.revature.phuflix.util.database.DatabaseConnection;
 
 import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO implements CrudDAO<User> {
     // location of database
+    Connection con = DatabaseConnection.getCon();
     final String path = "src/main/resources/database/user.txt";
     @Override
     public void save(User obj) {
-        try{
-            File file = new File(path);
-            FileWriter fw = new FileWriter(file, true);
-            fw.write(obj.toFileString());
-            fw.close();
-        } catch (IOException e){
-            throw new RuntimeException("File not found");
+        try {
+            PreparedStatement ps = con.prepareStatement("INSERT INTO users (id, username,password, role) VALUES (?,?,?,?)");
+            ps.setString(1, obj.getId());
+            ps.setString(2, obj.getUsername());
+            ps.setString(3, obj.getPassword());
+            ps.setString(4, obj.getRole());
+            ps.executeUpdate();
+
+        }catch (SQLException e){
+            throw new RuntimeException("An error occurred when trying to save to the database");
         }
     }
 
