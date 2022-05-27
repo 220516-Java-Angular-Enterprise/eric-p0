@@ -1,7 +1,22 @@
 package com.revature.phuflix.ui;
 
-public interface IMenu {
+public abstract class IMenu {
 
-    void start();
+
+    abstract void start();
+    protected void displayLine(){
+        System.out.println("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
+    }
+
+    protected void newPage(){
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("\n");
+        System.out.println("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
+    }
 
 }

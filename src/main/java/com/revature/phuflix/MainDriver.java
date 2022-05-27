@@ -10,11 +10,7 @@ public class MainDriver {
     public static void main(String[] args){
         UserDAO userDAO = new UserDAO();
         UserService user = new UserService(userDAO);
-
         new StartMenu(user).start();
-
-
-
     }
 
 }

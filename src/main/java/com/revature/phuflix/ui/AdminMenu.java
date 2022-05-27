@@ -4,41 +4,40 @@ import com.revature.phuflix.models.User;
 
 import java.util.Scanner;
 
-public class MainMenu extends IMenu {
+public class AdminMenu extends IMenu {
 
     private final User user;
 
-    public MainMenu(User user){
+    public AdminMenu(User user){
         this.user = user;
     }
 
     @Override
     public void start() {
-
-        welcomeMsg();
-        System.out.println("                    Welcome " + user.getUsername());
-        while(select1(options())){
-            newPage();
-            welcomeMsg();
+        adminWelcome();
+        while (select1(options())){
+            System.out.println("Try Again");
         }
 
     }
 
-    private void welcomeMsg(){
-        System.out.println("           __  ___      _          __  ___                \n" +
-                           "          /  |/  /___ _(_)___     /  |/  /__  ____  __  __\n" +
-                           "         / /|_/ / __ `/ / __ \\   / /|_/ / _ \\/ __ \\/ / / /\n" +
-                           "        / /  / / /_/ / / / / /  / /  / /  __/ / / / /_/ / \n" +
-                           "       /_/  /_/\\__,_/_/_/ /_/  /_/  /_/\\___/_/ /_/\\__,_/  \n");
+    private void adminWelcome(){
+        System.out.println("          ___       __          _     \n" +
+                           "         /   | ____/ /___ ___  (_)___ \n" +
+                        "        / /| |/ __  / __ `__ \\/ / __ \\\n" +
+                        "       / ___ / /_/ / / / / / / / / / /\n" +
+                        "      /_/  |_\\__,_/_/ /_/ /_/_/_/ /_/ \n" +
+                        "                                ");
         displayLine();
+        System.out.println("Hello " + user.getUsername() + "!");
     }
 
     private String options(){
         Scanner scan =new Scanner(System.in);
         String input;
         displayLine();
-        System.out.println("                     [1] Buy A Movie");
-        System.out.println("                     [2] Leave A Review.");
+        System.out.println("                     [1] Add Phubox.");
+        System.out.println("                     [2] Add Inventory.");
         System.out.println("                     [x] Sign out.");
         displayLine();
 
@@ -65,5 +64,4 @@ public class MainMenu extends IMenu {
                 return true;
         }
     }
-
 }

@@ -5,10 +5,11 @@ import com.revature.phuflix.services.UserService;
 import com.revature.phuflix.util.custom_exception.UserInputException;
 import sun.java2d.pipe.hw.AccelDeviceEventListener;
 
+import java.security.SecureRandom;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class StartMenu implements IMenu {
+public class StartMenu extends IMenu {
 
     private final UserService userService;
     private final Scanner scan = new Scanner(System.in);
@@ -21,30 +22,26 @@ public class StartMenu implements IMenu {
     public void start() {
         // messages
         displayWelcomeMsg();
-        displayOptions();
+
 
         // user input
-        System.out.println("Enter: ");
-        String input = scan.nextLine();
-
-        while(select1(input)){
-            System.out.println("Try again");
-            displayOptions();
-            System.out.println("Enter: ");
-            input = scan.nextLine();
+        while(select1(displayOptions())){
+            displayWelcomeMsg();
         }
 
     }
 
     private void displayWelcomeMsg(){
-        System.out.println("\nWelcome to PhuFlix");
+        System.out.println("\n" +
+                "    ██████╗ ██╗  ██╗██╗   ██╗███████╗██╗     ██╗██╗  ██╗          \n" +
+                "    ██╔══██╗██║  ██║██║   ██║██╔════╝██║     ██║╚██╗██╔╝          \n" +
+                "    ██████╔╝███████║██║   ██║█████╗  ██║     ██║ ╚███╔╝           \n" +
+                "    ██╔═══╝ ██╔══██║██║   ██║██╔══╝  ██║     ██║ ██╔██╗           \n" +
+                "    ██║     ██║  ██║╚██████╔╝██║     ███████╗██║██╔╝ ██╗          \n" +
+                "    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚══════╝╚═╝╚═╝  ╚═╝       \n" +
+                "                                                       ");
     }
 
-    private void displayOptions(){
-        System.out.println("\n[1] Login");
-        System.out.println("[2] Sign Up");
-        System.out.println("[x] Exit\n");
-    }
 
     private void login(){
         String username;
@@ -52,18 +49,30 @@ public class StartMenu implements IMenu {
         System.out.println("Logging in...");
         System.out.println("Please enter Username: \n");
         username = scan.nextLine();
+        newPage();
         System.out.println("Please enter Password: \n");
         password = scan.nextLine();
         try {
             User user = userService.login(username,password);
-            new MainMenu(user).start();
+            // Admin login
+            System.out.println(user.getRole().equals("ADMIN"));
+            newPage();
+            if (user.getRole().equals("ADMIN")){
+                new AdminMenu(user).start();
+            }
+            // normal login
+            else{new MainMenu(user).start();}
         }catch (UserInputException e){
+            newPage();
             System.out.println(e.getMessage());
-            System.out.println("Try again? (y)");
+            System.out.println("Try again? (y/n)");
             String input = scan.nextLine();
             if ("y".equals(input)) {
+                newPage();
                 login();
             }
+            newPage();
+
         }
 
     }
@@ -80,6 +89,7 @@ public class StartMenu implements IMenu {
 
                 System.out.println("Username: ");
                 username = scan.nextLine();
+                newPage();
 
                 while (true) {
                     try {
@@ -97,13 +107,18 @@ public class StartMenu implements IMenu {
 
                     System.out.println("Password: ");
                     password = scan.nextLine();
+                    newPage();
                     try{
                         if (userService.isValidPassword(password)){
+                            newPage();
                             System.out.print("\nRe enter password again: ");
                             confirm = scan.nextLine();
                             if(password.equals(confirm)){break;}
                         }
-                    }catch (UserInputException e){System.out.println("Invalid input. Try Again");}
+                    }catch (UserInputException e){
+                        newPage();
+                        System.out.println("Invalid input. Try Again");
+                    }
 
                 }
 
@@ -137,19 +152,36 @@ public class StartMenu implements IMenu {
         }
     }
 
+    private String displayOptions(){
+        String input;
+        System.out.println("                     ");
+        System.out.println("                     [1] Login");
+        System.out.println("                     [2] Sign Up");
+        System.out.println("                     [x] Exit\n");
+        displayLine();
+
+        System.out.println("Enter: ");
+        input = scan.nextLine();
+        return input;
+    }
+
     private boolean select1(String input){
 
         switch (input){
             case "1":
+                newPage();
                 login();
-                return false;
+                return true;
             case "2":
+                newPage();
                 signup();
-                return false;
+                return true;
             case "x":
+                newPage();
                 System.out.println("Goodbye.");
                 return false;
             default:
+                newPage();
                 System.out.println("Invalid input.");
                 return true;
         }

@@ -6,7 +6,6 @@ public class User {
     private String password;
     private String fName;
     private String lName;
-    private int money;
     private String role;
 
     public User() {

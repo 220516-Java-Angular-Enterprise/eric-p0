@@ -47,7 +47,7 @@ public class UserService {
         if (isValidInfo(user)){
             return user;
         }
-        return null;
+        throw new RuntimeException("Incorrect info");
     }
 
     private boolean isValidInfo(User user) {

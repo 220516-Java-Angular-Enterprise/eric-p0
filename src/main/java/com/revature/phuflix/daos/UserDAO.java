@@ -1,11 +1,13 @@
 package com.revature.phuflix.daos;
 
 import com.revature.phuflix.models.User;
+import com.revature.phuflix.util.custom_exception.UserInputException;
 import com.revature.phuflix.util.database.DatabaseConnection;
 
 import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,14 +56,14 @@ public class UserDAO implements CrudDAO<User> {
 
     public List<String> getAllUsernames() {
         List<String> usernames = new ArrayList<>();
+
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
-            String userData = null; //
-            while ((userData = br.readLine()) != null) {
-                String[] userArr = userData.split(",");
-                usernames.add(userArr[1]);
+            PreparedStatement pr = con.prepareStatement("SELECT username FROM users");
+            ResultSet rs = pr.executeQuery();
+            while (rs.next()){
+                usernames.add(rs.getString("username"));
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
             throw new RuntimeException("File not found.");
         }
         return usernames;
@@ -70,22 +72,18 @@ public class UserDAO implements CrudDAO<User> {
     public User getUserByUsernamePassword(String username, String password) {
         User user  = new User();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
-            String userData = null; //
-            while ((userData = br.readLine()) != null) {
-                String[] userArr = userData.split(",");
-                if (userArr[1].equals(username)){
-                    if(userArr[2].equals(password)){
-                        user.setId(userArr[0]);
-                        user.setUsername(userArr[1]);
-                        user.setPassword(userArr[2]);
-                        user.setRole(userArr[3]);
-                        break;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("File not found.");
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?");
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            user.setId(rs.getString("id"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password"));
+            user.setRole(rs.getString("role"));
+
+        } catch (SQLException e) {
+            throw new UserInputException("Incorrect Login info.");
         }
         return user;
     }
