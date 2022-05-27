@@ -14,7 +14,7 @@ The store app is a software that helps customers purchase products from your bus
 - Order histories should have the option to be sorted by date (latest to oldest and vice versa) or cost (least expensive to most expensive)
 - The manager should be able to replenish inventory
 ## Models
-- Customer
+- Customer 
 - Store
 - Orders
 - Product

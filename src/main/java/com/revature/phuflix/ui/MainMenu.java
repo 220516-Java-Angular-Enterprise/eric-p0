@@ -57,9 +57,10 @@ public class MainMenu extends IMenu {
 
                 return false;
             case "x":
-                System.out.println("Goodbye.");
                 newPage();
+                System.out.println("Signed Out.");
                 return false;
+
             default:
                 System.out.println("Invalid input.");
                 return true;

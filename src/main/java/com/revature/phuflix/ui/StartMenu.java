@@ -1,6 +1,8 @@
 package com.revature.phuflix.ui;
 
+import com.revature.phuflix.daos.PhuboxDAO;
 import com.revature.phuflix.models.User;
+import com.revature.phuflix.services.PhuboxService;
 import com.revature.phuflix.services.UserService;
 import com.revature.phuflix.util.custom_exception.UserInputException;
 import sun.java2d.pipe.hw.AccelDeviceEventListener;
@@ -58,7 +60,7 @@ public class StartMenu extends IMenu {
             System.out.println(user.getRole().equals("ADMIN"));
             newPage();
             if (user.getRole().equals("ADMIN")){
-                new AdminMenu(user).start();
+                new AdminMenu(user, new PhuboxService(new PhuboxDAO())).start();
             }
             // normal login
             else{new MainMenu(user).start();}
@@ -98,20 +100,20 @@ public class StartMenu extends IMenu {
                                 break;
                             }
                         }
-                    } catch (UserInputException e) {System.out.println(e.getMessage());}
+                    } catch (UserInputException e) {
+                        newPage();
+                        System.out.println(e.getMessage());}
                     System.out.println("Username: ");
                     username = scan.nextLine();
                 }
-
+                newPage();
                 while (true){
-
                     System.out.println("Password: ");
                     password = scan.nextLine();
-                    newPage();
                     try{
                         if (userService.isValidPassword(password)){
                             newPage();
-                            System.out.print("\nRe enter password again: ");
+                            System.out.print("Re enter password again: ");
                             confirm = scan.nextLine();
                             if(password.equals(confirm)){break;}
                         }
@@ -119,12 +121,14 @@ public class StartMenu extends IMenu {
                         newPage();
                         System.out.println("Invalid input. Try Again");
                     }
-
+                    newPage();
+                    System.out.println("Passwords did not match try again.");
                 }
 
                 confirmExit:
                 {
                     while (true) {
+                        newPage();
                     System.out.println("\nPlease confirm your credentials (y/n)");
                     System.out.println("\nUsername: " + username);
                     System.out.println("Password: " + password);
@@ -141,8 +145,10 @@ public class StartMenu extends IMenu {
                             // communicates with daos to save in database
                             break completeExit;
                         case "n":
+                            newPage();
                             break confirmExit;
                         default:
+                            newPage();
                             System.out.println("Invalid Input");
                             break;
                     }
