@@ -8,6 +8,8 @@ import com.revature.phuflix.util.custom_exception.UserInputException;
 import sun.java2d.pipe.hw.AccelDeviceEventListener;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -25,10 +27,12 @@ public class StartMenu extends IMenu {
         // messages
         displayWelcomeMsg();
 
+        displayTextBanner("Start Menu");
 
         // user input
         while(select1(displayOptions())){
             displayWelcomeMsg();
+            displayTextBanner("Start Menu");
         }
 
     }
@@ -44,15 +48,52 @@ public class StartMenu extends IMenu {
                 "                                                       ");
     }
 
+    private String displayOptions(){
+        String input;
+        System.out.println("                     ");
+        displayTextMiddle("[1] Login");
+        displayTextMiddle("[2] Sign Up");
+        displayTextMiddle("[x] Exit");
+        System.out.println(" ");
+        displayLine();
+
+        displayTextMiddle("Enter:");
+        input = scan.nextLine();
+        return input;
+    }
 
     private void login(){
         String username;
         String password;
-        System.out.println("Logging in...");
-        System.out.println("Please enter Username: \n");
+        displayTextMiddle("Logging in...");
+        // line 1
+        System.out.println(" ");
+        //line 2
+        displayTextBanner("Please enter Username:");
+        // line 5
+        displayBlankLine(13);
+        // line 18
+
+        displayLine();
+        // line 19
+        displayTextMiddle("Enter:");
+        // line 20
+
         username = scan.nextLine();
         newPage();
-        System.out.println("Please enter Password: \n");
+
+        displayTextBanner("Please enter Password:");
+        // line 3
+        displayBlankLine(7);
+        // line 10
+        displayTextMiddle("Username: " + username);
+        // line 11
+        displayBlankLine(7);
+        // line 18
+        displayLine();
+        // line 19
+        displayTextMiddle("Enter");
+        // line 20
         password = scan.nextLine();
         try {
             User user = userService.login(username,password);
@@ -66,8 +107,10 @@ public class StartMenu extends IMenu {
             else{new MainMenu(user).start();}
         }catch (UserInputException e){
             newPage();
-            System.out.println(e.getMessage());
-            System.out.println("Try again? (y/n)");
+            displayTextBanner(e.getMessage());
+            displayBlankLine(15);
+            displayLine();
+            displayTextMiddle("Try again? (y/n)");
             String input = scan.nextLine();
             if ("y".equals(input)) {
                 newPage();
@@ -129,46 +172,33 @@ public class StartMenu extends IMenu {
                 {
                     while (true) {
                         newPage();
-                    System.out.println("\nPlease confirm your credentials (y/n)");
-                    System.out.println("\nUsername: " + username);
-                    System.out.println("Password: " + password);
+                        System.out.println("\nPlease confirm your credentials (y/n)");
+                        System.out.println("\nUsername: " + username);
+                        System.out.println("Password: " + password);
 
-                    System.out.print("\nEnter: ");
-                    String input = scan.nextLine();
+                        System.out.print("\nEnter: ");
+                        String input = scan.nextLine();
 
-                    switch(input) {
-                        case "y":
-                            User user = new User(UUID.randomUUID().toString(), username, password, "DEFAULT");
-                            userService.register(user);
+                        switch(input) {
+                            case "y":
+                                User user = new User(UUID.randomUUID().toString(), username, password, "DEFAULT");
+                                userService.register(user);
 
-                            new MainMenu(user).start();
-                            // communicates with daos to save in database
-                            break completeExit;
-                        case "n":
-                            newPage();
-                            break confirmExit;
-                        default:
-                            newPage();
-                            System.out.println("Invalid Input");
-                            break;
-                    }
+                                new MainMenu(user).start();
+                                // communicates with daos to save in database
+                                break completeExit;
+                            case "n":
+                                newPage();
+                                break confirmExit;
+                            default:
+                                newPage();
+                                System.out.println("Invalid Input");
+                                break;
+                        }
                     }
                 }
             }
         }
-    }
-
-    private String displayOptions(){
-        String input;
-        System.out.println("                     ");
-        System.out.println("                     [1] Login");
-        System.out.println("                     [2] Sign Up");
-        System.out.println("                     [x] Exit\n");
-        displayLine();
-
-        System.out.println("Enter: ");
-        input = scan.nextLine();
-        return input;
     }
 
     private boolean select1(String input){

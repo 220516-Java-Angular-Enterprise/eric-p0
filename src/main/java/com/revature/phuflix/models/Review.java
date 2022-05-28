@@ -6,4 +6,5 @@ public class Review {
     private String user_id;
     private String rating;
     private String msg;
+    private String timestamp;
 }

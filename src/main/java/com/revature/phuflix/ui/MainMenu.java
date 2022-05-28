@@ -16,10 +16,10 @@ public class MainMenu extends IMenu {
     public void start() {
 
         welcomeMsg();
-        System.out.println("                    Welcome " + user.getUsername());
+        displayTextBanner("Welcome " + user.getUsername());
         while(select1(options())){
-            newPage();
             welcomeMsg();
+            displayTextBanner("Main Menu");
         }
 
     }
@@ -30,16 +30,19 @@ public class MainMenu extends IMenu {
                            "         / /|_/ / __ `/ / __ \\   / /|_/ / _ \\/ __ \\/ / / /\n" +
                            "        / /  / / /_/ / / / / /  / /  / /  __/ / / / /_/ / \n" +
                            "       /_/  /_/\\__,_/_/_/ /_/  /_/  /_/\\___/_/ /_/\\__,_/  \n");
-        displayLine();
+
     }
 
     private String options(){
         Scanner scan =new Scanner(System.in);
         String input;
-        displayLine();
-        System.out.println("                     [1] Buy A Movie");
-        System.out.println("                     [2] Leave A Review.");
-        System.out.println("                     [x] Sign out.");
+        System.out.println(" ");
+        displayTextMiddle("[1] Find A Movie");
+        displayTextMiddle("[2] Leave A Review");
+        displayTextMiddle("[3]  View Shopping Cart");
+        displayTextMiddle("[4]  View Order History");
+        displayTextMiddle("[x] Sign out.");
+        System.out.println(" ");
         displayLine();
 
         System.out.println("Enter: ");
@@ -58,10 +61,11 @@ public class MainMenu extends IMenu {
                 return false;
             case "x":
                 newPage();
-                System.out.println("Signed Out.");
+                System.out.println( user.getUsername() + "has Signed Out");
                 return false;
 
             default:
+                newPage();
                 System.out.println("Invalid input.");
                 return true;
         }
