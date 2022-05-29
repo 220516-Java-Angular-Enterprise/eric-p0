@@ -1,8 +1,12 @@
 package com.revature.phuflix.ui;
 
 import com.revature.phuflix.daos.PhuboxDAO;
+import com.revature.phuflix.models.Inventory;
+import com.revature.phuflix.models.Movies;
 import com.revature.phuflix.models.Phubox;
 import com.revature.phuflix.models.User;
+import com.revature.phuflix.services.InventoryService;
+import com.revature.phuflix.services.MovieService;
 import com.revature.phuflix.services.PhuboxService;
 import com.revature.phuflix.util.custom_exception.UserInputException;
 
@@ -15,11 +19,16 @@ public class AdminMenu extends IMenu {
 
     private final User user;
     private final PhuboxService phuboxService;
+    private final InventoryService inventoryService;
+    private final MovieService movieService;
 
-    public AdminMenu(User user, PhuboxService phuboxService){
+    public AdminMenu(User user, PhuboxService phuboxService, InventoryService inventoryService,
+                     MovieService movieService){
 
         this.user = user;
         this.phuboxService = phuboxService;
+        this.inventoryService = inventoryService;
+        this.movieService = movieService;
     }
 
     @Override
@@ -69,7 +78,10 @@ public class AdminMenu extends IMenu {
                 newPhubox();
                 return true;
             case "2":
-                selectPhubox();
+                addMovieInventory();
+                return true;
+            case "3":
+                addMovie();
                 return true;
             case "x":
                 newPage();
@@ -377,7 +389,6 @@ public class AdminMenu extends IMenu {
                         }
                         try {
                             if (phuboxService.isValidSelect(input)) {
-                                System.out.println((counter-1)*3 + (Integer.valueOf(input) - 1));
                                 box = boxes.get((counter-1)*3 + (Integer.valueOf(input) - 1));
                                 break exit;
                             }
@@ -389,9 +400,165 @@ public class AdminMenu extends IMenu {
                 }
 
             }
-
         }
         return box;
+    }
+
+    // add new inventory
+    // look at all movies in the database
+    // looks at all boxes
+    //
+
+    private Movies selectMovie(){
+        // display list of all phuboxes and then return the one the user selects
+        Movies movie = new Movies();
+        Scanner scan = new Scanner(System.in);
+        List<Movies> movies = movieService.getAllMovies();
+        int counter = 1;
+        int lines= 3;
+
+        displayTextBanner("List of Movies");
+        // line = 3
+        exit:
+        {
+            for (int i = 0; i < movies.size(); i++) {
+
+                // display three boxes per page
+                List<String> l = new ArrayList<>();
+                l.add(movies.get(i).getMovie_name());
+                //.add("$"+String.valueOf(movies.get(i).getPrice()/100.00));
+                displayBox(l, (i % 5) + 1);
+                lines += 3;
+                next:
+                {
+                    if ((i + 1) % 5 == 0 || i == movies.size() - 1) { // change if size chabge
+                        if (lines > 0 && lines < 18) {
+                            displayBlankLine(18 - lines);
+                        }
+                        displayTextLine(counter + "/" + (int) Math.ceil(movies.size() / 5.0));
+                        // line 19
+                        displayTextMiddle("Select movie. blank for next. x to exit");
+                        // line 20
+                        String input = scan.nextLine();
+                        if (input.equals("x")) {
+                            break;
+                        }
+                        if (input.equals("n")) {
+                            displayTextBanner("List of movies");
+                            lines = 3;
+                            counter++;
+                            break next;
+                        }
+                        try {
+                            if (input.matches("[1-5]")) {
+                                movie = movies.get((counter-1)*5 + (Integer.valueOf(input) - 1));
+                                break exit;
+                            }
+                        } catch (UserInputException e) {
+                            displayTextMiddle(e.getMessage());
+                            break;
+                        }
+                    }
+                }
+
+            }
+        }
+        System.out.println(movie.getMovie_name());
+        return movie;
+
+
+    }
+
+    private void addMovieInventory(){
+        Scanner scan = new Scanner(System.in);
+        Movies movie = selectMovie();
+        Phubox box = selectPhubox();
+
+        int qty;
+
+        displayTextMiddle("Enter quantity added");
+        qty = scan.nextInt();
+        scan.nextLine();
+
+        Inventory inv = new Inventory(movie.getId(), box.getId(), qty);
+        inventoryService.save(inv);
+    }
+
+    private void addMovie(){
+        Scanner scan = new Scanner(System.in);
+        String movieTitle;
+        String priceInput;
+        int price = 0;
+        String confirm;
+
+        completeExit:
+        {
+            while (true) {
+                System.out.println("Adding Movie...");
+
+                System.out.println("Movie Title: ");
+                movieTitle = scan.nextLine();
+                newPage();
+
+                while (true) {
+                    try {
+                        if (movieService.isValidTitle(movieTitle)){
+                            break;
+                        }
+                    } catch (UserInputException e) {
+                        newPage();
+                        System.out.println(e.getMessage());}
+                    System.out.println("Movie Title: ");
+                    movieTitle = scan.nextLine();
+                }
+                newPage();
+                while (true){
+
+                    try{
+                        newPage();
+                        System.out.println("Price : ");
+                        priceInput = scan.nextLine();
+                        if(movieService.isValidPrice(priceInput)){
+                            double temp = Double.parseDouble(priceInput) *100.0;
+                            price = (int)temp;
+                            break;
+                        }
+                    }catch (Exception e){
+                        newPage();
+                        System.out.println("Invalid input. Try Again");
+                    }
+
+                }
+
+                confirmExit:
+                {
+                    while (true) {
+                        newPage();
+                        System.out.println("\nPlease confirm your credentials (y/n)");
+                        System.out.println("\nTitle: " + movieTitle);
+                        System.out.println("Price: $" + price/100.0);
+
+                        System.out.print("\nEnter: ");
+                        String input = scan.nextLine();
+
+                        switch(input) {
+                            case "y":
+                                Movies movie = new Movies(UUID.randomUUID().toString(), movieTitle, price);
+                                movieService.save(movie);
+
+                                break completeExit;
+                            case "n":
+                                newPage();
+                                break confirmExit;
+                            default:
+                                newPage();
+                                System.out.println("Invalid Input");
+                                break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

@@ -1,7 +1,11 @@
 package com.revature.phuflix.ui;
 
+import com.revature.phuflix.daos.InventoryDAO;
+import com.revature.phuflix.daos.MovieDAO;
 import com.revature.phuflix.daos.PhuboxDAO;
 import com.revature.phuflix.models.User;
+import com.revature.phuflix.services.InventoryService;
+import com.revature.phuflix.services.MovieService;
 import com.revature.phuflix.services.PhuboxService;
 import com.revature.phuflix.services.UserService;
 import com.revature.phuflix.util.custom_exception.UserInputException;
@@ -101,7 +105,8 @@ public class StartMenu extends IMenu {
             System.out.println(user.getRole().equals("ADMIN"));
             newPage();
             if (user.getRole().equals("ADMIN")){
-                new AdminMenu(user, new PhuboxService(new PhuboxDAO())).start();
+                new AdminMenu(user, new PhuboxService(new PhuboxDAO()), new InventoryService(new InventoryDAO()),
+                        new MovieService(new MovieDAO())).start();
             }
             // normal login
             else{new MainMenu(user).start();}
