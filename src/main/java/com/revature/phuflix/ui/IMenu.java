@@ -66,21 +66,31 @@ public abstract class IMenu {
         int spaces;
         System.out.println("+-----------------------------------------------------------+");
         for(int i=0; i < l.size() ;i++){
+            spaces = 61;
             String start = "|";
+            if (l.get(i).charAt(0) == '⭑'){
+                spaces -= 1;
+            }
             if(i == mid){
                 start = start +" [" + num + "]";
             }
-            spaces = (61 - start.length()*2 -l.get(i).length())/2;
+            //
+            spaces = (spaces - start.length()*2  -l.get(i).length())/2;
             for (int j = 0; j< spaces; j++){
                 start += " ";
             }
             start = start + l.get(i);
             int remain = 60 - start.length();
+            if (l.get(i).charAt(0) == '⭑'){
+                remain = 59 - start.length();
+            }
             for (int j = 0; j< remain; j++){
                 start += " ";
             }
+
             start +="|";
             System.out.println(start);
+
         }
         System.out.println("+-----------------------------------------------------------+");
     }
@@ -97,5 +107,7 @@ public abstract class IMenu {
         System.out.println(anw);
 
     }
+
+
 
 }

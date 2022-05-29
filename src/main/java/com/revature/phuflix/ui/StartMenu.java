@@ -3,11 +3,9 @@ package com.revature.phuflix.ui;
 import com.revature.phuflix.daos.InventoryDAO;
 import com.revature.phuflix.daos.MovieDAO;
 import com.revature.phuflix.daos.PhuboxDAO;
+import com.revature.phuflix.daos.ReviewDAO;
 import com.revature.phuflix.models.User;
-import com.revature.phuflix.services.InventoryService;
-import com.revature.phuflix.services.MovieService;
-import com.revature.phuflix.services.PhuboxService;
-import com.revature.phuflix.services.UserService;
+import com.revature.phuflix.services.*;
 import com.revature.phuflix.util.custom_exception.UserInputException;
 import sun.java2d.pipe.hw.AccelDeviceEventListener;
 
@@ -109,7 +107,7 @@ public class StartMenu extends IMenu {
                         new MovieService(new MovieDAO())).start();
             }
             // normal login
-            else{new MainMenu(user).start();}
+            else{new MainMenu(user, new MovieService(new MovieDAO()),new ReviewService(new ReviewDAO())).start();}
         }catch (UserInputException e){
             newPage();
             displayTextBanner(e.getMessage());
@@ -189,7 +187,7 @@ public class StartMenu extends IMenu {
                                 User user = new User(UUID.randomUUID().toString(), username, password, "DEFAULT");
                                 userService.register(user);
 
-                                new MainMenu(user).start();
+                                new MainMenu(user,new MovieService(new MovieDAO()), new ReviewService(new ReviewDAO())).start();
                                 // communicates with daos to save in database
                                 break completeExit;
                             case "n":

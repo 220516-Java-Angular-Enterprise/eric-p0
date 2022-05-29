@@ -55,13 +55,13 @@ public class AdminMenu extends IMenu {
     private String options(){
         Scanner scan =new Scanner(System.in);
         String input;
-        displayTextMiddle("[1] Add Phubox.");
-        displayTextMiddle("[2] Add Inventory.");
-        displayTextMiddle("[3] View Phuboxes.");
+        displayTextMiddle("[1] Add Phubox");
+        displayTextMiddle("[2] Add Inventory");
+        displayTextMiddle("[3] Add New Movie");
 
-        displayTextMiddle("[4] View Users.");
-        displayTextMiddle("[5] Delete Users.");
-        displayTextMiddle("[x] Sign out.");
+        displayTextMiddle("[4] View Users");
+        displayTextMiddle("[5] Delete Users");
+        displayTextMiddle("[x] Sign Out");
         displayLine();
 
         System.out.println("Enter: ");
@@ -471,17 +471,67 @@ public class AdminMenu extends IMenu {
 
     private void addMovieInventory(){
         Scanner scan = new Scanner(System.in);
+        Phubox box = new Phubox();
+        int qty =0;
+        String qtyInput;
+
         Movies movie = selectMovie();
-        Phubox box = selectPhubox();
+        try{
+            if (movieService.isValidMovie(movie)){
+                box = selectPhubox();
+                phuboxService.isValidPhubox(box);
+            }
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            return;
+        }
+        displayTextMiddle("Inventory");
+        //line 1
 
-        int qty;
 
-        displayTextMiddle("Enter quantity added");
-        qty = scan.nextInt();
-        scan.nextLine();
+            while (true) {
+                displayTextBanner("Quantity");
+                // line 4
+                displayBlankLine(3);
+                // line 7
+                displayTextLine("Movie");
+                //line 8
+                displayTextMiddle(movie.getMovie_name());
+                // line 9
+                System.out.println(" ");
+                // line 10
+                displayTextLine("Phubox Address");
+                // line 11
+                displayTextMiddle(box.getAddress());
+                // line 12
+                displayTextMiddle(box.getCity() + "," + box.getState());
+                // line 13
 
-        Inventory inv = new Inventory(movie.getId(), box.getId(), qty);
-        inventoryService.save(inv);
+                displayBlankLine(5);
+                // line 18
+                displayLine();
+                // line 19
+                displayTextMiddle("Enter number of new Inventory");
+                // line 20
+                qtyInput = scan.nextLine();
+                if(inventoryService.isValidQuanity(qtyInput)){
+                    qty = Integer.parseInt(qtyInput);
+                    break;
+                }
+
+        }
+        try {
+            inventoryService.save(new Inventory(movie.getId(), box.getId(), qty));
+            } catch (Exception e){
+            try{
+                // get the quanity
+                Inventory inv = inventoryService.getInventoryByIDs(movie.getId(), box.getId());
+                inventoryService.update(new Inventory(movie.getId(), box.getId(), qty+inv.getQty()));
+            } catch (Exception e1){
+                System.out.println(e1.getMessage());
+            }
+        }
+
     }
 
     private void addMovie(){
@@ -544,7 +594,11 @@ public class AdminMenu extends IMenu {
                         switch(input) {
                             case "y":
                                 Movies movie = new Movies(UUID.randomUUID().toString(), movieTitle, price);
-                                movieService.save(movie);
+                                try{
+                                    movieService.save(movie);
+                                }catch (UserInputException e){
+
+                                }
 
                                 break completeExit;
                             case "n":

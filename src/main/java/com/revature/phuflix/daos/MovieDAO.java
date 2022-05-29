@@ -29,7 +29,6 @@ public class MovieDAO implements CrudDAO<Movies> {
         }catch (SQLException e){
             throw new RuntimeException("An error occurred when trying to save to the database");
         }
-
     }
 
     @Override

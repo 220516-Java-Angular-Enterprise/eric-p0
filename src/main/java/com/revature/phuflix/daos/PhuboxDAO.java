@@ -1,5 +1,6 @@
 package com.revature.phuflix.daos;
 
+import com.revature.phuflix.models.Inventory;
 import com.revature.phuflix.models.Phubox;
 import com.revature.phuflix.util.custom_exception.UserInputException;
 import com.revature.phuflix.util.database.DatabaseConnection;
@@ -41,7 +42,17 @@ public class PhuboxDAO implements CrudDAO<Phubox>{
 
     @Override
     public Phubox getById(String id) {
-        return null;
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM phuboxes WHERE id = ?");
+            ps.setString(1,id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+
+            return new Phubox(rs.getString("id"), rs.getString("address"), rs.getString("city"),rs.getString("state"));
+
+        }catch(SQLException e){
+            throw new UserInputException("Error getting SQL");
+        }
     }
 
     @Override

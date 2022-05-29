@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PhuboxService {
-    private static PhuboxDAO phuboxDAO;
+    private final PhuboxDAO phuboxDAO;
 
     public PhuboxService(PhuboxDAO phuboxDAO){
         this.phuboxDAO = phuboxDAO;
@@ -64,10 +64,19 @@ public class PhuboxService {
 
     }
 
+    public Phubox getPhuboxByID(String id){
+        return phuboxDAO.getById(id);
+    }
+
     public boolean isValidSelect(String input) {
         if(input.matches("[1-3]")){
             return true;
         }
         throw new UserInputException("Please enter a correct input. Back to Main Menu");
+    }
+
+    public boolean isValidPhubox(Phubox box) {
+        if(box.getId()==null){throw new UserInputException("Invalid input");}
+        return true;
     }
 }

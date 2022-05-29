@@ -8,7 +8,8 @@ import com.revature.phuflix.util.custom_exception.UserInputException;
 import java.util.List;
 
 public class MovieService {
-    private static MovieDAO movieDAO;
+
+    private final MovieDAO movieDAO;
     public MovieService(MovieDAO movieDAO){
         this.movieDAO  = movieDAO;
 
@@ -34,5 +35,10 @@ public class MovieService {
 
     public void save(Movies movie) {
         movieDAO.save(movie);
+    }
+
+    public boolean isValidMovie(Movies movie) {
+        if(movie.getId()==null){throw new UserInputException("Invalid input");}
+        return true;
     }
 }
