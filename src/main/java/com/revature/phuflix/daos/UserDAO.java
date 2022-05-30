@@ -1,5 +1,6 @@
 package com.revature.phuflix.daos;
 
+import com.revature.phuflix.models.Phubox;
 import com.revature.phuflix.models.User;
 import com.revature.phuflix.util.custom_exception.UserInputException;
 import com.revature.phuflix.util.database.DatabaseConnection;
@@ -49,9 +50,21 @@ public class UserDAO implements CrudDAO<User> {
     @Override
     public List<User> getAll() {
         // get all Users
+        List<User> users = new ArrayList<>();
 
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * from users");
+            ResultSet rs = ps.executeQuery();
 
-        return null;
+            while (rs.next()){
+                User user = new User(rs.getString("id"), rs.getString("username"), rs.getString("password"), rs.getString("role"));
+                users.add(user);
+            }
+        }catch (SQLException e){
+            throw new UserInputException("Sql Error");
+        }
+        return users;
+
     }
 
     public List<String> getAllUsernames() {

@@ -23,15 +23,24 @@ public class StartMenu extends IMenu {
 
     @Override
     public void start() {
-        // messages
-        displayWelcomeMsg();
+        // build page
+        String page = "";
+        page += displayWelcomeMsg1();
+        // line 7
+        page += displayTextBanner1("Start Menu");
+        // line 10
+        page += displayOptions1();
+        //line 19
 
-        displayTextBanner("Start Menu");
+        System.out.println(page);
+
+        String input;
+        input = scan.nextLine();
 
         // user input
-        while(select1(displayOptions())){
-            displayWelcomeMsg();
-            displayTextBanner("Start Menu");
+        while(select1(input)){
+            System.out.println(page);
+            input = scan.nextLine();
         }
 
     }
@@ -45,6 +54,21 @@ public class StartMenu extends IMenu {
                 "    ██║     ██║  ██║╚██████╔╝██║     ███████╗██║██╔╝ ██╗          \n" +
                 "    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚══════╝╚═╝╚═╝  ╚═╝       \n" +
                 "                                                       ");
+    }
+
+    private String displayWelcomeMsg1(){
+        // line = 7
+        String page="";
+        page += displayBlankLine1(1);
+        page += displayTextMiddle1("██████╗ ██╗  ██╗██╗   ██╗███████╗██╗     ██╗██╗  ██╗");
+        page += displayTextMiddle1("██╔══██╗██║  ██║██║   ██║██╔════╝██║     ██║╚██╗██╔╝");
+        page += displayTextMiddle1("██████╔╝███████║██║   ██║█████╗  ██║     ██║ ╚███╔  ");
+        page += displayTextMiddle1("██╔═══╝ ██╔══██║██║   ██║██╔══╝  ██║     ██║ ██╔██╗ ");
+        page += displayTextMiddle1("██║     ██║  ██║╚██████╔╝██║     ███████╗██║██╔╝ ██╗");
+        page += displayTextMiddle1("╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚══════╝╚═╝╚═╝  ╚═╝");
+
+        return page;
+
     }
 
     private String displayOptions(){
@@ -101,7 +125,7 @@ public class StartMenu extends IMenu {
             newPage();
             if (user.getRole().equals("ADMIN")){
                 new AdminMenu(user, new PhuboxService(new PhuboxDAO()), new InventoryService(new InventoryDAO()),
-                        new MovieService(new MovieDAO())).start();
+                        new MovieService(new MovieDAO()), new UserService(new UserDAO()), new OrderService(new OrderDAO())).start();
             }
             // normal login
             else{new MainMenu(user, new MovieService(new MovieDAO()),
@@ -225,5 +249,43 @@ public class StartMenu extends IMenu {
                 System.out.println("Invalid input.");
                 return true;
         }
+    }
+
+    private String displayOptions1(){
+        // line = 7
+        String input;
+        String page= "";
+        page += displayBlankLine1(2);
+        //line 2
+        page += displayTextMiddle1("[1] Login");
+        //line 3
+        page += displayTextMiddle1("[2] Sign Up");
+        //line 4
+        page += displayTextMiddle1("[x] Exit");
+        //line 5
+        page += displayBlankLine1(2);
+        //line 7
+        page += displayLine1();
+        //line 8
+        page += displayTextMiddle1("Enter:");
+        //line 9
+        return page;
+
+    }
+
+    private void testMessage(){
+        String page;
+        page = displayTextBanner1("This is a Test");
+        //line 3
+        page += displayBlankLine1(7);
+        //line 10
+        page += displayTextMiddle1("Hello Eric");
+        // line 11
+        page += displayBlankLine1(6);
+        //line 18
+        page += displayLine1();
+        // line 19
+        page += displayTextMiddle1("Enter: ");
+        System.out.println(page);
     }
 }

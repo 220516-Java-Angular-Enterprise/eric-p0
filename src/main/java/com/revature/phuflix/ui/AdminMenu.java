@@ -1,19 +1,11 @@
 package com.revature.phuflix.ui;
 
 import com.revature.phuflix.daos.PhuboxDAO;
-import com.revature.phuflix.models.Inventory;
-import com.revature.phuflix.models.Movies;
-import com.revature.phuflix.models.Phubox;
-import com.revature.phuflix.models.User;
-import com.revature.phuflix.services.InventoryService;
-import com.revature.phuflix.services.MovieService;
-import com.revature.phuflix.services.PhuboxService;
+import com.revature.phuflix.models.*;
+import com.revature.phuflix.services.*;
 import com.revature.phuflix.util.custom_exception.UserInputException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class AdminMenu extends IMenu {
 
@@ -21,14 +13,18 @@ public class AdminMenu extends IMenu {
     private final PhuboxService phuboxService;
     private final InventoryService inventoryService;
     private final MovieService movieService;
+    private final UserService userService;
+    private final OrderService orderService;
 
     public AdminMenu(User user, PhuboxService phuboxService, InventoryService inventoryService,
-                     MovieService movieService){
+                     MovieService movieService, UserService userService,OrderService orderService){
 
         this.user = user;
         this.phuboxService = phuboxService;
         this.inventoryService = inventoryService;
         this.movieService = movieService;
+        this.userService = userService;
+        this.orderService = orderService;
     }
 
     @Override
@@ -82,6 +78,13 @@ public class AdminMenu extends IMenu {
                 return true;
             case "3":
                 addMovie();
+                return true;
+            case "4":
+                //viewOrderHistory();
+                viewOrderHistory();
+                return true;
+            case "5":
+
                 return true;
             case "x":
                 newPage();
@@ -351,119 +354,195 @@ public class AdminMenu extends IMenu {
         Phubox box = new Phubox();
         Scanner scan = new Scanner(System.in);
         List<Phubox> boxes = phuboxService.getAllPhuBoxes();
-        int counter = 1;
-        int lines= 3;
 
-        displayTextBanner("List of phuboxes");
-        // line = 3
+        List<String> pages = new ArrayList<>();
+        String tempPage;
+        int counter = 1;
+        int lines = 3;
+        int displayBoxes = 0;
+        int displayBoxesPerPage = 1;
+        int displayBoxesSize = 0;
+
+        tempPage = displayTextBanner1("This is a list of");
+        // line 3
+
+        // we will break out once we get our last page
+
+        for (int i = 0; i < boxes.size(); i++) {
+
+            //display box
+            List<String> l = new ArrayList<>();
+            //-------- Add elemnts to display box
+
+            l.add("Address: " + boxes.get(i).getAddress());
+            l.add("City: " + boxes.get(i).getCity());
+            l.add("State: " + boxes.get(i).getState());
+
+            // -------- end elements display box
+
+            displayBoxes = l.size();
+            displayBoxesSize = displayBoxes + 2;
+            displayBoxesPerPage++;
+
+            tempPage += displayBox1(l, (i % (15 / displayBoxesSize) + 1));
+            lines += displayBoxes + 2;
+
+            if ((i + 1) % (15 / displayBoxesSize) == 0 || i == boxes.size() - 1) {
+                if (lines > 0 && lines < 18) {
+                    tempPage += displayBlankLine1(18 - lines);
+                }
+
+                tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(boxes.size() / ((15 / displayBoxesSize) * 1.0)));
+                // line 19
+
+                tempPage += displayTextMiddle1("Text input opions");
+
+                pages.add(tempPage);
+                tempPage = displayTextBanner1("This is a list of");
+                lines = 3;
+                counter++;
+
+            }
+        }
+
+        // we have pages now we can iterate through them
+        int place = 0;// this will kepp track of which page we are on
+
+        String userInput = "";
+
+        String currentPage = pages.get(place);
+        int items = 15/displayBoxesSize;
+
         exit:
         {
-            for (int i = 0; i < boxes.size(); i++) {
 
-                // display three boxes per page
-                List<String> l = new ArrayList<>();
-                l.add("Address: " + boxes.get(i).getAddress());
-                l.add("City: " + boxes.get(i).getCity());
-                l.add("State: " + boxes.get(i).getState());
-                displayBox(l, (i % 3) + 1);
-                lines += 5;
-                next:
-                {
-                    if ((i + 1) % 3 == 0 || i == boxes.size() - 1) {
-                        if (lines > 0 && lines < 18) {
-                            displayBlankLine(18 - lines);
-                        }
-                        displayTextLine(counter + "/" + (int) Math.ceil(boxes.size() / 3.0));
-                        // line 19
-                        displayTextMiddle("Select box. blank for next. x to exit");
-                        // line 20
-                        String input = scan.nextLine();
-                        if (input.equals("x")) {
-                            break;
-                        }
-                        if (input.equals("n")) {
-                            displayTextBanner("List of phuboxes");
-                            lines = 3;
-                            counter++;
-                            break next;
-                        }
-                        try {
-                            if (phuboxService.isValidSelect(input)) {
-                                box = boxes.get((counter-1)*3 + (Integer.valueOf(input) - 1));
-                                break exit;
-                            }
-                        } catch (UserInputException e) {
-                            displayTextMiddle(e.getMessage());
-                            break;
-                        }
+            while (true) {
+                System.out.println(currentPage);
+                userInput = scan.nextLine();
+
+                try {
+                    if (userInput.matches("[1-" + items + "]")){
+                        box = boxes.get(items*place + (Integer.parseInt(userInput) - 1));
+                        break exit;
                     }
+                    else if(userInput.equals("n")) {
+                        currentPage = pages.get(place+1);
+                        place++;
+                    }else if(userInput.equals("p")){
+                        currentPage = pages.get(place-1);
+                        place--;
+                    } else if(userInput.equals("x")) {
+                        break exit;
+                    }
+
+                    else{
+                        System.out.println("invalid input");
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Invalid input");
                 }
 
             }
         }
         return box;
-    }
 
-    // add new inventory
-    // look at all movies in the database
-    // looks at all boxes
-    //
+    }
 
     private Movies selectMovie(){
         // display list of all phuboxes and then return the one the user selects
         Movies movie = new Movies();
         Scanner scan = new Scanner(System.in);
         List<Movies> movies = movieService.getAllMovies();
-        int counter = 1;
-        int lines= 3;
 
-        displayTextBanner("List of Movies");
-        // line = 3
+        List<String> pages = new ArrayList<>();
+        String tempPage;
+        int counter = 1;
+        int lines = 3;
+        int displayBoxes = 0;
+        int displayBoxesPerPage = 1;
+        int displayBoxesSize = 0;
+
+        tempPage = displayTextBanner1("This is a list of");
+        // line 3
+
+        // we will break out once we get our last page
+
+        for (int i = 0; i < movies.size(); i++) {
+
+            //display box
+            List<String> l = new ArrayList<>();
+            //-------- Add elemnts to display box
+
+            l.add(movies.get(i).getMovie_name());
+
+            // -------- end elements display box
+
+            displayBoxes = l.size();
+            displayBoxesSize = displayBoxes + 2;
+            displayBoxesPerPage++;
+
+            tempPage += displayBox1(l, (i % (15 / displayBoxesSize) + 1));
+            lines += displayBoxes + 2;
+
+            if ((i + 1) % (15 / displayBoxesSize) == 0 || i == movies.size() - 1) {
+                if (lines > 0 && lines < 18) {
+                    tempPage += displayBlankLine1(18 - lines);
+                }
+
+                tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(movies.size() / ((15 / displayBoxesSize) * 1.0)));
+                // line 19
+
+                tempPage += displayTextMiddle1("Text input opions");
+
+                pages.add(tempPage);
+                tempPage = displayTextBanner1("This is a list of");
+                lines = 3;
+                counter++;
+
+            }
+        }
+
+        // we have pages now we can iterate through them
+        int place = 0;// this will kepp track of which page we are on
+
+        String userInput = "";
+
+        String currentPage = pages.get(place);
+        int items = 15/displayBoxesSize;
+
         exit:
         {
-            for (int i = 0; i < movies.size(); i++) {
 
-                // display three boxes per page
-                List<String> l = new ArrayList<>();
-                l.add(movies.get(i).getMovie_name());
-                //.add("$"+String.valueOf(movies.get(i).getPrice()/100.00));
-                displayBox(l, (i % 5) + 1);
-                lines += 3;
-                next:
-                {
-                    if ((i + 1) % 5 == 0 || i == movies.size() - 1) { // change if size chabge
-                        if (lines > 0 && lines < 18) {
-                            displayBlankLine(18 - lines);
-                        }
-                        displayTextLine(counter + "/" + (int) Math.ceil(movies.size() / 5.0));
-                        // line 19
-                        displayTextMiddle("Select movie. blank for next. x to exit");
-                        // line 20
-                        String input = scan.nextLine();
-                        if (input.equals("x")) {
-                            break;
-                        }
-                        if (input.equals("n")) {
-                            displayTextBanner("List of movies");
-                            lines = 3;
-                            counter++;
-                            break next;
-                        }
-                        try {
-                            if (input.matches("[1-5]")) {
-                                movie = movies.get((counter-1)*5 + (Integer.valueOf(input) - 1));
-                                break exit;
-                            }
-                        } catch (UserInputException e) {
-                            displayTextMiddle(e.getMessage());
-                            break;
-                        }
+            while (true) {
+                System.out.println(currentPage);
+                userInput = scan.nextLine();
+
+                try {
+                    if (userInput.matches("[1-" + items + "]")){
+                        movie = movies.get(items*place + (Integer.parseInt(userInput) - 1));
+                        break exit;
                     }
+                    else if(userInput.equals("n")) {
+                        currentPage = pages.get(place+1);
+                        place++;
+                    }else if(userInput.equals("p")){
+                        currentPage = pages.get(place-1);
+                        place--;
+                    } else if(userInput.equals("x")) {
+                        break exit;
+                    }
+
+                    else{
+                        System.out.println("invalid input");
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Invalid input");
                 }
 
             }
         }
-        System.out.println(movie.getMovie_name());
         return movie;
 
 
@@ -614,5 +693,219 @@ public class AdminMenu extends IMenu {
             }
         }
     }
+
+    //use as base for this
+    private User selectUser() {
+        Scanner scan = new Scanner(System.in);
+        List<User> users = userService.getAllUsers();
+        User user = new User();
+        List<String> pages = new ArrayList<>();
+        String tempPage;
+        int counter = 1;
+        int lines = 3;
+        int displayBoxes = 0;
+        int displayBoxesPerPage = 1;
+        int displayBoxesSize = 0;
+
+        tempPage = displayTextBanner1("This is a list of");
+        // line 3
+
+        // we will break out once we get our last page
+
+        for (int i = 0; i < users.size(); i++) {
+
+            //display box
+            List<String> l = new ArrayList<>();
+            //-------- Add elemnts to display box
+
+            l.add(users.get(i).getUsername());
+
+            // -------- end elements display box
+
+            displayBoxes = l.size();
+            displayBoxesSize = displayBoxes + 2;
+            displayBoxesPerPage++;
+
+            tempPage += displayBox1(l, (i % (15 / displayBoxesSize) + 1));
+            lines += displayBoxes + 2;
+
+            if ((i + 1) % (15 / displayBoxesSize) == 0 || i == users.size() - 1) {
+                if (lines > 0 && lines < 18) {
+                    tempPage += displayBlankLine1(18 - lines);
+                }
+
+                tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(users.size() / ((15 / displayBoxesSize) * 1.0)));
+                // line 19
+
+                tempPage += displayTextMiddle1("Text input opions");
+
+                pages.add(tempPage);
+                tempPage = displayTextBanner1("This is a list of");
+                lines = 3;
+                counter++;
+
+            }
+        }
+
+        // we have pages now we can iterate through them
+        int place = 0;// this will kepp track of which page we are on
+
+        String userInput = "";
+
+        String currentPage = pages.get(place);
+        int items = 15/displayBoxesSize;
+
+        exit:
+        {
+
+            while (true) {
+                System.out.println(currentPage);
+                userInput = scan.nextLine();
+
+                try {
+                    if (userInput.matches("[1-" + items + "]")){
+                        user = users.get(items*place + (Integer.parseInt(userInput) - 1));
+                        break exit;
+                    }
+                    else if(userInput.equals("n")) {
+                        currentPage = pages.get(place+1);
+                        place++;
+                    }else if(userInput.equals("p")){
+                        currentPage = pages.get(place-1);
+                        place--;
+                    } else if(userInput.equals("x")) {
+                        break exit;
+                    }
+
+                    else{
+                        System.out.println("invalid input");
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Invalid input");
+                }
+
+            }
+        }
+        return user;
+    }
+
+    private void viewOrderHistory(){
+        // need to validate
+        Scanner scan = new Scanner(System.in);
+        List<String> pages = new ArrayList<>();
+        List<Orders> orderHistory = new ArrayList<>();
+
+        try{
+            orderHistory = orderService.getSOrderHistory(selectUser().getId());
+            orderHistory.get(0);
+        }
+        catch (Exception e){
+            System.out.println("No Inventory");
+            return;
+        }
+
+
+        String tempPage;
+        int counter = 1;
+        int lines = 3;
+        int displayBoxes = 0;
+        int displayBoxesPerPage = 1;
+        int displayBoxesSize = 0;
+
+        tempPage = displayTextBanner1("This is a list of");
+        // line 3
+
+        // we will break out once we get our last page
+
+        for (int i = 0; i < orderHistory.size(); i++) {
+
+            //display box
+            List<String> l = new ArrayList<>();
+            //-------- Add elemnts to display box
+
+            //first line date excuted
+            String date = orderHistory.get(i).getTimestamp().toString();
+            l.add(date);
+
+            // second line
+            l.add(movieService.getByID(orderHistory.get(i).getMovie_id()).getMovie_name());
+
+            // third line price
+            String price = "$"+ movieService.getByID(orderHistory.get(i).getMovie_id()).getPrice() / 100.0;
+            l.add(price);
+
+            // -------- end elements display box
+
+            displayBoxes = l.size();
+            displayBoxesSize = displayBoxes + 2;
+            displayBoxesPerPage++;
+
+            tempPage += displayBox1(l, (i % (15 / displayBoxesSize) + 1));
+            lines += displayBoxes + 2;
+
+            if ((i + 1) % (15 / displayBoxesSize) == 0 || i == orderHistory.size() - 1) {
+                if (lines > 0 && lines < 18) {
+                    tempPage += displayBlankLine1(18 - lines);
+                }
+
+                tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(orderHistory.size() / ((15 / displayBoxesSize) * 1.0)));
+                // line 19
+
+                tempPage += displayTextMiddle1("Text input opions");
+
+                pages.add(tempPage);
+                tempPage = displayTextBanner1("This is a list of");
+                lines = 3;
+                counter++;
+
+            }
+        }
+
+        // we have pages now we can iterate through them
+        int place = 0;// this will kepp track of which page we are on
+
+        String userInput = "";
+
+        String currentPage = pages.get(place);
+        int items = 15/displayBoxesSize;
+
+        exit:
+        {
+
+            while (true) {
+                System.out.println(currentPage);
+                userInput = scan.nextLine();
+
+                try {
+                    if (userInput.matches("[1-" + items + "]")){
+                        // items
+                        break exit;
+                    }
+                    else if(userInput.equals("n")) {
+                        currentPage = pages.get(place+1);
+                        place++;
+                    }else if(userInput.equals("p")){
+                        currentPage = pages.get(place-1);
+                        place--;
+                    } else if(userInput.equals("x")) {
+                        break exit;
+                    }
+
+                    else{
+                        System.out.println("invalid input");
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Invalid input");
+                }
+
+            }
+        }
+        return;
+
+    }
+
+
 
 }

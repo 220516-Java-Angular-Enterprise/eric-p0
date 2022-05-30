@@ -37,11 +37,27 @@ public class OrderDAO implements CrudDAO<Orders> {
 
     @Override
     public void update(Orders obj) {
+        try {
+            PreparedStatement ps = con.prepareStatement("UPDATE orders SET ordered_on = ? WHERE id = ?");
+            ps.setTimestamp(1, obj.getTimestamp());
+            ps.setString(2, obj.getId());
+            ps.executeUpdate();
+
+        }catch (SQLException e){
+            throw new RuntimeException("An error occurred when trying to save to the database");
+        }
 
     }
 
     @Override
     public void delete(String id) {
+        try{
+            PreparedStatement ps = con.prepareStatement("DELETE FROM orders where id = ?");
+            ps.setString(1,id);
+            ps.executeUpdate();
+        }catch (SQLException e){
+            throw new RuntimeException("Error in Orders DAO delete");
+        }
 
     }
 
@@ -80,4 +96,48 @@ public class OrderDAO implements CrudDAO<Orders> {
         return shopingCart;
     }
 
+    public int getShoppingCartSum(String user_id){
+        int sum = 0;
+
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT sum(m.price)  \n" +
+                    "\tFROM orders o\n" +
+                    "\tINNER JOIN movies m ON o.movie_id = m.id  \n" +
+                    "\t\tWHERE user_id = ? AND ordered_on is null;");
+            ps.setString(1, user_id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            sum = rs.getInt("sum");
+
+        }catch (SQLException e){
+            throw new UserInputException("Sql Error");
+        }
+        return sum;
+    }
+
+    public List<Orders> getSOrderHistory(String user_id) {
+        List<Orders> orderHistory = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM orders WHERE user_id = ? AND ordered_on IS not null");
+            ps.setString(1, user_id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()){
+                Orders order = new Orders();
+
+                order.setId(rs.getString("id"));
+                order.setUser_id(rs.getString("user_id"));
+                order.setPhubox_id(rs.getString("phubox_id"));
+                order.setMovie_id(rs.getString("movie_id"));
+                order.setQty(rs.getInt("qty"));
+                order.setTimestamp(rs.getTimestamp("ordered_on"));
+
+                orderHistory.add(order);
+            }
+        }catch (SQLException e){
+            throw new UserInputException("Sql Error");
+        }
+        return orderHistory;
+    }
 }

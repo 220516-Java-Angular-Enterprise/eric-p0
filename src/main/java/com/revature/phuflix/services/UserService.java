@@ -54,4 +54,8 @@ public class UserService {
         if(user.getUsername() == null) throw new UserInputException("Incorrect Username or Password.");
         return true;
     }
+
+    public List<User> getAllUsers(){
+        return userDAO.getAll();
+    }
 }
