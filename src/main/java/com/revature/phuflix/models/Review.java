@@ -1,14 +1,16 @@
 package com.revature.phuflix.models;
 
+import java.sql.Timestamp;
+
 public class Review {
     private String  id;
     private String  movie_id;
     private String user_id;
     private int rating;
     private String msg;
-    private String timestamp;
+    private Timestamp timestamp;
 
-    public Review(String id, String movie_id, String user_id, int rating, String msg, String timestamp) {
+    public Review(String id, String movie_id, String user_id, int rating, String msg, Timestamp timestamp) {
         this.id = id;
         this.movie_id = movie_id;
         this.user_id = user_id;
@@ -61,11 +63,11 @@ public class Review {
         this.msg = msg;
     }
 
-    public String getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 }

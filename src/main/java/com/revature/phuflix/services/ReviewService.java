@@ -9,4 +9,12 @@ public class ReviewService {
     public ReviewService(ReviewDAO reviewDAO){
         this.reviewDAO = reviewDAO;
     }
+
+    public void save(Review review){
+        reviewDAO.save(review);
+    }
+
+    public double getAverageScore(String movie_id){
+        return reviewDAO.getAvgRatingByMovieID(movie_id);
+    }
 }

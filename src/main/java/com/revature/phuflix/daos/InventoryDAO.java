@@ -79,14 +79,15 @@ public class InventoryDAO implements CrudDAO<Inventory>{
     public List<Inventory> getAllbyPhuboxId(String id) {
         List<Inventory> inventories = new ArrayList<>();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM inventory WHERE phubox_id = " + id);
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM inventory WHERE phubox_id = ?");
+            ps.setString(1,id);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 Inventory inv = new Inventory(rs.getString("movie_id"),id,rs.getInt("qty"));
                 inventories.add(inv);
             }
         }catch (SQLException e){
-            System.out.println(e.getMessage());
+            System.out.println("Failed in InventoryDAO");
         }
         return inventories;
     }

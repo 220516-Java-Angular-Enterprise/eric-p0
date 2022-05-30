@@ -41,4 +41,8 @@ public class MovieService {
         if(movie.getId()==null){throw new UserInputException("Invalid input");}
         return true;
     }
+
+    public Movies getByID(String id){
+        return movieDAO.getById(id);
+    }
 }

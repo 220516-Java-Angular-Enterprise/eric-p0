@@ -43,8 +43,20 @@ public class MovieDAO implements CrudDAO<Movies> {
 
     @Override
     public Movies getById(String id) {
-        return null;
+        Movies movie;
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM movies WHERE id = ?");
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return new Movies(rs.getString("id"), rs.getString("name"), rs.getInt("price"));
+
+        }catch (SQLException e){
+            throw new UserInputException("Get by ID error");
+        }
     }
+
+
 
     @Override
     public List<Movies> getAll() {
