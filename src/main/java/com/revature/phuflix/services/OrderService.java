@@ -35,4 +35,8 @@ public class OrderService {
     public List<Orders> getSOrderHistory(String user_id) {
         return orderDAO.getSOrderHistory(user_id);
     }
+
+    public List<Orders> getSortedHistory(String user_id) {
+        return orderDAO.getSortedHistory(user_id);
+    }
 }

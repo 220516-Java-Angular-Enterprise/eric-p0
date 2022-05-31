@@ -91,7 +91,7 @@ public class MainMenu extends IMenu {
         // line 5
         page  +=displayTextMiddle1("[4] View Order History");
         // line 6
-        page  +=displayTextMiddle1("[x] Sign out.");
+        page  +=displayTextMiddle1("[x] Sign out");
         // line 7
         page  += displayBlankLine1(3);
         // line 10
@@ -110,14 +110,14 @@ public class MainMenu extends IMenu {
                 try {
                     orderMovie(inventoryService.getInventoryByPhuboxID(selectPhubox().getId()));
                 } catch (Exception e){
-                    System.out.println("Back to Main menu");
+                    System.out.println("No Inventory");
                 }
                 return true;
             case "2":
                 try {
                     reviewMovie(selectMovie());
                 }catch (Exception e){
-                    System.out.println("Failied getting movie.");
+                    System.out.println("Back to Main menu");
                 }
                 return true;
             case "3":
@@ -347,7 +347,7 @@ public class MainMenu extends IMenu {
         int displayBoxesPerPage = 1;
         int displayBoxesSize = 0;
 
-        tempPage = displayTextBanner1("This is a list of");
+        tempPage = displayTextBanner1("Reviewing Movie");
         // line 3
 
         // we will break out once we get our last page
@@ -359,6 +359,9 @@ public class MainMenu extends IMenu {
             //-------- Add elemnts to display box
 
             l.add(movies.get(i).getMovie_name());
+
+            String s = scoreToStars(reviewService.getAverageScore(movies.get(i).getId()));
+            l.add(s);
 
             // -------- end elements display box
 
@@ -377,10 +380,10 @@ public class MainMenu extends IMenu {
                 tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(movies.size() / ((15 / displayBoxesSize) * 1.0)));
                 // line 19
 
-                tempPage += displayTextMiddle1("Text input opions");
+                tempPage += displayTextMiddle1("Select by number (n for next, p for previous, x to exit)");
 
                 pages.add(tempPage);
-                tempPage = displayTextBanner1("This is a list of");
+                tempPage = displayTextBanner1("Reviewing Movies");
                 lines = 3;
                 counter++;
 
@@ -678,93 +681,152 @@ public class MainMenu extends IMenu {
 
     // ------------------
 
-    // need to handle exception
+    // have to fix view
     private void deleteItemShoppingCart(){
         List<Orders> shoppingCart = orderService.getShoppingCart(user.getId());
+        try{
+            shoppingCart.get(0);
+        }catch (Exception e){
+            System.out.println("No items in your cart");
+            return;
+        }
+
         Scanner scan = new Scanner(System.in);
-
         Movies movie = new Movies();
+        List<String> pages = new ArrayList<>();
 
+        String tempPage;
         int counter = 1;
-        int lines= 3;
-        int displayBoxes = 0; // change if boxes change
+        int lines = 3;
+        int displayBoxes = 0;
+        int displayBoxesPerPage = 1;
+        int displayBoxesSize = 0;
+        String input = "";
 
-        displayTextBanner("List of Movies");
-        // line = 3
+        tempPage = displayTextBanner1("This is a list of");
+        // line 3
+
+        // we will break out once we get our last page
+
+        for (int i = 0; i < shoppingCart.size(); i++) {
+
+            //display box
+            List<String> l = new ArrayList<>();
+            //-------- Add elemnts to display box
+
+            //first line date excuted
+            //first line
+            l.add( phuboxService.getPhuboxByID(shoppingCart.get(i).getPhubox_id()).getAddress());
+
+            // second line
+            l.add(movieService.getByID(shoppingCart.get(i).getMovie_id()).getMovie_name());
+
+            // third line
+            String price = "$"+ String.valueOf( movieService.getByID(shoppingCart.get(i).getMovie_id()).getPrice()/100.0);
+            l.add(price);
+
+            // -------- end elements display box
+
+            displayBoxes = l.size();
+            displayBoxesSize = displayBoxes + 2;
+            displayBoxesPerPage++;
+
+            tempPage += displayBox1(l, (i % (15 / displayBoxesSize) + 1));
+            lines += displayBoxes + 2;
+
+            if ((i + 1) % (15 / displayBoxesSize) == 0 || i == shoppingCart.size() - 1) {
+                if (lines > 0 && lines < 18) {
+                    tempPage += displayBlankLine1(18 - lines);
+                }
+
+                tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(shoppingCart.size() / ((15 / displayBoxesSize) * 1.0)));
+                // line 19
+
+                tempPage += displayTextMiddle1("Text input opions");
+
+                pages.add(tempPage);
+                tempPage = displayTextBanner1("This is a list of");
+                lines = 3;
+                counter++;
+
+            }
+        }
+
+        // we have pages now we can iterate through them
+        int place = 0;// this will kepp track of which page we are on
+
+        String userInput = "";
+
+        String currentPage = pages.get(place);
+        int items = 15/displayBoxesSize;
 
         exit:
         {
-            for (int i = 0; i < shoppingCart.size(); i++) {
 
-                // display three boxes per page
-                List<String> l = new ArrayList<>();
+            while (true) {
+                System.out.println(currentPage);
+                userInput = scan.nextLine();
 
-                //first line
-                l.add( phuboxService.getPhuboxByID(shoppingCart.get(i).getPhubox_id()).getAddress());
+                try {
+                    if (userInput.matches("[1-" + items + "]")){
+                        // items
 
-                // second line
-                l.add(movieService.getByID(shoppingCart.get(i).getMovie_id()).getMovie_name());
+                        // remove item from cart
+                        // order id shoppingCart.get((counter-1)*displayBoxes + (Integer.parseInt(input) - 1)).getId()
+                        Orders selected = shoppingCart.get(items*place + (Integer.parseInt(userInput) - 1));
 
-                // third line
-                String price = "$"+ String.valueOf( movieService.getByID(shoppingCart.get(i).getMovie_id()).getPrice()/100.0);
-                l.add(price);
+                        // fix display
+                        Movies selectedMovie = movieService.getByID(selected.getMovie_id());
+                        displayTextMiddle("Are you sure you want to delete " + selectedMovie.getMovie_name());
 
-                displayBoxes = l.size();
-                displayBox(l, (i % displayBoxes) + 1);
-                lines += displayBoxes +2;
-                next:
-                {
-                    if ((i + 1) % displayBoxes == 0 || i == shoppingCart.size() - 1) { // change if size change
-                        if (lines > 0 && lines < 18) {
-                            displayBlankLine(18 - lines);
+
+                        input = scan.nextLine();
+
+                        if(input.equals("y")) {
+                            orderService.deleteByID(selected.getId());
+                            System.out.print("Removed " + selectedMovie.getMovie_name() + " from your cart");
+                            break exit;
                         }
-                        displayTextLine(counter + "/" + (int) Math.ceil(shoppingCart.size() / (displayBoxes*1.0)));
-                        // line 19
-                        displayTextMiddle("Select movie. blank for next. x to exit");
-                        // line 20
-                        String input = scan.nextLine();
-                        if (input.equals("x")) {
-                            break;
-                        }
-                        if (input.equals("n")) {
-                            displayTextBanner("List of movies");
-                            lines = 3;
-                            counter++;
-                            break next;
-                        }
-                        try {
-                            if (input.matches("[1-5]")) {
-                                // remove item from cart
-                                // order id shoppingCart.get((counter-1)*displayBoxes + (Integer.parseInt(input) - 1)).getId()
-                                String order_id = shoppingCart.get((counter-1)*displayBoxes + (Integer.parseInt(input) - 1)).getId();
+                        break exit;
 
-                                displayTextMiddle("Are you sure you want to delete");
-                                input = scan.nextLine();
-                                if(input.equals("y")) {
-                                    orderService.deleteByID(order_id);
-                                    displayTextMiddle("Successful");
-                                    break exit;
-                                }
-                                break exit;
-                            }
-                        } catch (UserInputException e) {
-                            displayTextMiddle(e.getMessage());
-                            break;
-                        }
-                        return; // break out if invalid
                     }
+                    else if(userInput.equals("n")) {
+                        currentPage = pages.get(place+1);
+                        place++;
+                    }else if(userInput.equals("p")){
+                        currentPage = pages.get(place-1);
+                        place--;
+                    } else if(userInput.equals("x")) {
+                        break exit;
+                    }
+
+                    else{
+                        System.out.println("invalid input");
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Invalid input");
                 }
 
             }
         }
-        System.out.println(movie.getMovie_name());
         return;
+
+
 
     }
 
-    // need to handle exception
+    // have to fix view
     private void viewShoppingCart(){
         List<Orders> shoppingCart = orderService.getShoppingCart(user.getId());
+
+        try{
+            shoppingCart.get(0);
+        }catch (Exception e){
+            System.out.println("No items in your cart");
+            return;
+        }
+
         Scanner scan = new Scanner(System.in);
 
         Movies movie = new Movies();
@@ -867,6 +929,12 @@ public class MainMenu extends IMenu {
         Scanner scan = new Scanner(System.in);
         List<Orders> shoppingCart = orderService.getShoppingCart(user.getId());
 
+        try{
+            shoppingCart.get(0);
+        }catch (Exception e){
+            System.out.println("No items in your cart");
+            return;
+        }
 
         String input;
 
@@ -891,10 +959,10 @@ public class MainMenu extends IMenu {
                         // removes item from cart
                         orderService.deleteByID(order.getId());
                         return;
+                    } else {
+                        inventoryService.substract(order.getMovie_id(), order.getPhubox_id());
+                        orderService.update(order);
                     }
-                    inventoryService.substract(order.getMovie_id(), order.getPhubox_id());
-                    orderService.update(order);
-                    return;
                 }
             }
 
@@ -939,105 +1007,117 @@ public class MainMenu extends IMenu {
             return;
         }
 
-
-        String tempPage;
-        int counter = 1;
-        int lines = 3;
-        int displayBoxes = 0;
-        int displayBoxesPerPage = 1;
-        int displayBoxesSize = 0;
-
-        tempPage = displayTextBanner1("This is a list of");
-        // line 3
-
-        // we will break out once we get our last page
-
-        for (int i = 0; i < orderHistory.size(); i++) {
-
-            //display box
-            List<String> l = new ArrayList<>();
-            //-------- Add elemnts to display box
-
-            //first line date excuted
-            String date = orderHistory.get(i).getTimestamp().toString();
-            l.add(date);
-
-            // second line
-            l.add(movieService.getByID(orderHistory.get(i).getMovie_id()).getMovie_name());
-
-            // third line price
-            String price = "$"+ movieService.getByID(orderHistory.get(i).getMovie_id()).getPrice() / 100.0;
-            l.add(price);
-
-            // -------- end elements display box
-
-            displayBoxes = l.size();
-            displayBoxesSize = displayBoxes + 2;
-            displayBoxesPerPage++;
-
-            tempPage += displayBox1(l, (i % (15 / displayBoxesSize) + 1));
-            lines += displayBoxes + 2;
-
-            if ((i + 1) % (15 / displayBoxesSize) == 0 || i == orderHistory.size() - 1) {
-                if (lines > 0 && lines < 18) {
-                    tempPage += displayBlankLine1(18 - lines);
-                }
-
-                tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(orderHistory.size() / ((15 / displayBoxesSize) * 1.0)));
-                // line 19
-
-                tempPage += displayTextMiddle1("Text input opions");
-
-                pages.add(tempPage);
-                tempPage = displayTextBanner1("This is a list of");
-                lines = 3;
-                counter++;
-
-            }
-        }
-
-        // we have pages now we can iterate through them
-        int place = 0;// this will kepp track of which page we are on
-
-        String userInput = "";
-
-        String currentPage = pages.get(place);
-        int items = 15/displayBoxesSize;
-
-        exit:
+        out:
         {
-
+            // del if broken
             while (true) {
-                System.out.println(currentPage);
-                userInput = scan.nextLine();
 
-                try {
-                    if (userInput.matches("[1-" + items + "]")){
-                        // items
-                        break exit;
-                    }
-                    else if(userInput.equals("n")) {
-                        currentPage = pages.get(place+1);
-                        place++;
-                    }else if(userInput.equals("p")){
-                        currentPage = pages.get(place-1);
-                        place--;
-                    } else if(userInput.equals("x")) {
-                        break exit;
-                    }
+                String tempPage;
+                int counter = 1;
+                int lines = 3;
+                int displayBoxes = 0;
+                int displayBoxesPerPage = 1;
+                int displayBoxesSize = 0;
 
-                    else{
-                        System.out.println("invalid input");
-                    }
+                tempPage = displayTextBanner1("This is a list of");
+                // line 3
 
-                } catch (Exception e) {
-                    System.out.println("Invalid input");
+                // we will break out once we get our last page
+
+                for (int i = 0; i < orderHistory.size(); i++) {
+
+                    //display box
+                    List<String> l = new ArrayList<>();
+                    //-------- Add elemnts to display box
+
+                    //first line date excuted
+                    String date = orderHistory.get(i).getTimestamp().toString();
+                    l.add(date);
+
+                    // second line
+                    l.add(movieService.getByID(orderHistory.get(i).getMovie_id()).getMovie_name());
+
+                    // third line price
+                    String price = "$" + movieService.getByID(orderHistory.get(i).getMovie_id()).getPrice() / 100.0;
+                    l.add(price);
+
+                    // -------- end elements display box
+
+                    displayBoxes = l.size();
+                    displayBoxesSize = displayBoxes + 2;
+                    displayBoxesPerPage++;
+
+                    tempPage += displayBox1(l, (i % (15 / displayBoxesSize) + 1));
+                    lines += displayBoxes + 2;
+
+                    if ((i + 1) % (15 / displayBoxesSize) == 0 || i == orderHistory.size() - 1) {
+                        if (lines > 0 && lines < 18) {
+                            tempPage += displayBlankLine1(18 - lines);
+                        }
+
+                        tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(orderHistory.size() / ((15 / displayBoxesSize) * 1.0)));
+                        // line 19
+
+                        tempPage += displayTextMiddle1("Text input opions");
+
+                        pages.add(tempPage);
+                        tempPage = displayTextBanner1("This is a list of");
+                        lines = 3;
+                        counter++;
+
+                    }
                 }
 
-            }
-        }
-        return;
+                // we have pages now we can iterate through them
+                int place = 0;// this will kepp track of which page we are on
 
+                String userInput = "";
+
+                String currentPage = pages.get(place);
+                int items = 15 / displayBoxesSize;
+
+                exit:
+                {
+
+                    while (true) {
+                        System.out.println(currentPage);
+                        userInput = scan.nextLine();
+
+                        try {
+                            if (userInput.matches("[1-" + items + "]")) {
+                                // items
+                                break out;
+                            } else if (userInput.equals("n")) {
+                                currentPage = pages.get(place + 1);
+                                place++;
+                            } else if (userInput.equals("p")) {
+                                currentPage = pages.get(place - 1);
+                                place--;
+                            } else if (userInput.equals("x")) {
+                                break out;
+                            } else if (userInput.equals("s")) {
+                                // assing orders list sorted
+                                orderHistory = orderService.getSortedHistory(user.getId());
+                                System.out.println(orderHistory.get(0).getMovie_id());
+                                pages.clear();
+
+                                break exit;
+                                // get by sorting
+
+                            } else {
+                                System.out.println("invalid input");
+                            }
+
+                        } catch (Exception e) {
+                            System.out.println("Invalid input");
+                        }
+
+                    }
+                }
+
+            } // while
+        } // out
+        return;
     }
 
     // fixed view menu

@@ -140,4 +140,31 @@ public class OrderDAO implements CrudDAO<Orders> {
         }
         return orderHistory;
     }
+
+    public List<Orders> getSortedHistory(String user_id) {
+        List<Orders> orderHistory = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM orders WHERE user_id = ? AND ordered_on IS not null ORDER BY ordered_on DESC");
+            ps.setString(1, user_id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()){
+                Orders order = new Orders();
+
+                order.setId(rs.getString("id"));
+                order.setUser_id(rs.getString("user_id"));
+                order.setPhubox_id(rs.getString("phubox_id"));
+                order.setMovie_id(rs.getString("movie_id"));
+                order.setQty(rs.getInt("qty"));
+                order.setTimestamp(rs.getTimestamp("ordered_on"));
+
+                orderHistory.add(order);
+                System.out.println("here");
+            }
+        }catch (SQLException e){
+            throw new UserInputException("Sql Error");
+        }
+        return orderHistory;
+    }
 }
