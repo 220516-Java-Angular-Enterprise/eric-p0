@@ -30,24 +30,36 @@ public class MainMenu extends IMenu {
 
     @Override
     public void start() {
+        Scanner scan = new Scanner(System.in);
 
-        welcomeMsg();
-        displayTextBanner("Welcome " + user.getUsername());
-        while(select1(options())){
-            welcomeMsg();
-            displayTextBanner("Main Menu");
+        String page = "";
+        page += welcomeMsg1();
+        // line 5
+        page += displayTextBanner1("Welcome " + user.getUsername());
+        // line 8
+        page += options1();
+        // line 20
+        System.out.println(page);
+        String input = scan.nextLine();
+
+
+        while(select1(input)){
+            System.out.println(page);
+            input = scan.nextLine();
         }
 
     }
 
-    private void welcomeMsg(){
-        System.out.println("           __  ___      _          __  ___                \n" +
-                           "          /  |/  /___ _(_)___     /  |/  /__  ____  __  __\n" +
-                           "         / /|_/ / __ `/ / __ \\   / /|_/ / _ \\/ __ \\/ / / /\n" +
-                           "        / /  / / /_/ / / / / /  / /  / /  __/ / / / /_/ / \n" +
-                           "       /_/  /_/\\__,_/_/_/ /_/  /_/  /_/\\___/_/ /_/\\__,_/  \n");
-
+    private String welcomeMsg1(){
+        String anw = "";
+        anw += displayTextMiddle1("    __  ___      _          __  ___              ");
+        anw += displayTextMiddle1("     /  |/  /___ _(_)___     /  |/  /__  ____  __  __");
+        anw += displayTextMiddle1("    / /|_/ / __ `/ / __ \\   / /|_/ / _ \\/ __ \\/ / / /");
+        anw += displayTextMiddle1("  / /  / / /_/ / / / / /  / /  / /  __/ / / / /_/ /" );
+        anw += displayTextMiddle1("/_/  /_/\\__,_/_/_/ /_/  /_/  /_/\\___/_/ /_/\\__,_/");
+        return anw;
     }
+
 
     private String options(){
         Scanner scan =new Scanner(System.in);
@@ -66,11 +78,40 @@ public class MainMenu extends IMenu {
         return input;
     }
 
+    private String options1(){
+
+        String page = "";
+        page  += displayBlankLine1(2);
+        // line 2
+        page  +=displayTextMiddle1("[1] Order A Movie");
+        // line 3
+        page  +=displayTextMiddle1("[2] Leave A Review");
+        // line 4
+        page  +=displayTextMiddle1("[3] Shopping Cart");
+        // line 5
+        page  +=displayTextMiddle1("[4] View Order History");
+        // line 6
+        page  +=displayTextMiddle1("[x] Sign out.");
+        // line 7
+        page  += displayBlankLine1(3);
+        // line 10
+        page  +=displayLine1();
+        // line 11
+        page  +=displayTextMiddle1("Enter: ");
+        // line 12
+        return page;
+    }
+
     private boolean select1(String input){
+
 
         switch (input){
             case "1":
-                orderMovie(inventoryService.getInventoryByPhuboxID(selectPhubox().getId()));
+                try {
+                    orderMovie(inventoryService.getInventoryByPhuboxID(selectPhubox().getId()));
+                } catch (Exception e){
+                    System.out.println("Back to Main menu");
+                }
                 return true;
             case "2":
                 try {
@@ -81,7 +122,22 @@ public class MainMenu extends IMenu {
                 return true;
             case "3":
                 // shopping cart
-                while(shoppingCartSelect(shoppingCartOptions()));
+                Scanner scan = new Scanner(System.in);
+                String page = "";
+                page += shopingCartPage();
+                System.out.println(page);
+                String inputShop = scan.nextLine();
+
+
+                while (shoppingCartSelect(inputShop)){
+                    System.out.println(page);
+                    inputShop = scan.nextLine();
+
+                }
+
+
+
+                //while(shoppingCartSelect(shoppingCartOptions()));
                 return true;
 
             case "4":
@@ -91,7 +147,7 @@ public class MainMenu extends IMenu {
 
             case "x":
                 newPage();
-                System.out.println( user.getUsername() + "has Signed Out");
+                System.out.println( user.getUsername() + " has Signed Out");
                 return false;
 
             default:
@@ -101,6 +157,7 @@ public class MainMenu extends IMenu {
         }
     }
 
+    // need to check if user already has title in cart
     private void orderMovie(List<Inventory> inventories){
         // 1. displays boxes
         // 2. return movie: displays inventory of those boxes
@@ -140,7 +197,7 @@ public class MainMenu extends IMenu {
             List<String> l = new ArrayList<>();
             //-------- Add elemnts to display box
 
-            l.add("$"+ (movieService.getByID(inventories.get(i).getMovie_id()).getPrice()) / 100.00);
+            l.add(("$"+ (movieService.getByID(inventories.get(i).getMovie_id()).getPrice()) / 100.00) + " QTY: " + inventories.get(i).getQty());
             // movie = movieService.getByID(inventories.get(i).getMovie_id())
             l.add(movieService.getByID(inventories.get(i).getMovie_id()).getMovie_name());
             String s = scoreToStars(reviewService.getAverageScore(movieService.getByID(inventories.get(i).getMovie_id()).getId()));
@@ -164,6 +221,7 @@ public class MainMenu extends IMenu {
                 // line 19
 
                 tempPage += displayTextMiddle1("Text input opions");
+                // line 20
 
                 pages.add(tempPage);
                 tempPage = displayTextBanner1("This is a list of");
@@ -185,38 +243,54 @@ public class MainMenu extends IMenu {
         {
 
             while (true) {
-                System.out.println(currentPage);
+                System.out.print(currentPage);
                 userInput = scan.nextLine();
+                page:
+                {
 
-                try {
-                    if (userInput.matches("[1-" + items + "]")){
-                        Inventory inv = inventories.get(items*place + (Integer.parseInt(userInput) - 1));
+                    try {
+                        if (userInput.matches("[1-" + items + "]")) {
+                            Inventory inv = inventories.get(items * place + (Integer.parseInt(userInput) - 1));
 
-                        int qty = 0;
+                            String movieID = inv.getMovie_id();
+                            int qty = 0;
+                            // check if user already requested title
 
-                        Orders orders = new Orders(UUID.randomUUID().toString(), user.getId(), inv.getPhubox_id(), inv.getMovie_id(), 1);
+                            // will throw and error if cart is empty
 
-                        orderService.save(orders);
+                            try {
+                                List<Orders> shopingCart = orderService.getShoppingCart(user.getId());
+                                for (Orders o : shopingCart) {
+                                    if (o.getMovie_id().equals(movieID)) {
+                                        System.out.println("Cannot add movie that is in your cart");
+                                        break page;
+                                    }
+                                }
+                            } catch (IndexOutOfBoundsException e) {
+                                // do nothing
+                            }
 
-                        System.out.println(orders.getMovie_id());
-                        break exit;
+                            Orders orders = new Orders(UUID.randomUUID().toString(), user.getId(), inv.getPhubox_id(), inv.getMovie_id(), 1);
+
+                            orderService.save(orders);
+
+                            System.out.println(orders.getMovie_id());
+                            break exit;
+                        } else if (userInput.equals("n")) {
+                            currentPage = pages.get(place + 1);
+                            place++;
+                        } else if (userInput.equals("p")) {
+                            currentPage = pages.get(place - 1);
+                            place--;
+                        } else if (userInput.equals("x")) {
+                            break exit;
+                        } else {
+                            System.out.println("invalid input");
+                        }
+
+                    } catch (Exception e) {
+                        System.out.println("Invalid input");
                     }
-                    else if(userInput.equals("n")) {
-                        currentPage = pages.get(place+1);
-                        place++;
-                    }else if(userInput.equals("p")){
-                        currentPage = pages.get(place-1);
-                        place--;
-                    } else if(userInput.equals("x")) {
-                        break exit;
-                    }
-
-                    else{
-                        System.out.println("invalid input");
-                    }
-
-                } catch (Exception e) {
-                    System.out.println("Invalid input");
                 }
 
             }
@@ -225,11 +299,38 @@ public class MainMenu extends IMenu {
 
     }
 
-    private void d(){
-        // 1. displays all movies in database
-        // 2. user selects movie and then display screen with reviews
-        // 3. if user selects leave a review user can leave a review of the movie
+    private String  shoppingCartOptions(){
+
+        String anw ="";
+        anw += displayTextMiddle1("[1] Check out shopping cart");
+        //line1
+        anw += displayTextMiddle1("[2] View shopping cart");
+        //line2
+        anw += displayTextMiddle1("[3] Delete item from shopping cart");
+        //line3
+        anw += displayTextMiddle1("[x] Back to Main Menu");
+        //line4
+        return anw;
     }
+
+    private String shopingCartPage(){
+        String page ="";
+
+        page += displayTextBanner1("Shopping Cart");
+        // line 3
+        page += displayBlankLine1(6);
+        // line 9
+        page += shoppingCartOptions();
+        // line 13
+        page += displayBlankLine1(5);
+        // line 18
+        page += displayLine1();
+        // line 19
+        page += displayTextMiddle1("Enter: ");
+        //line 20
+        return page;
+    }
+
 
 
     private Movies selectMovie(){
@@ -577,6 +678,7 @@ public class MainMenu extends IMenu {
 
     // ------------------
 
+    // need to handle exception
     private void deleteItemShoppingCart(){
         List<Orders> shoppingCart = orderService.getShoppingCart(user.getId());
         Scanner scan = new Scanner(System.in);
@@ -660,6 +762,7 @@ public class MainMenu extends IMenu {
 
     }
 
+    // need to handle exception
     private void viewShoppingCart(){
         List<Orders> shoppingCart = orderService.getShoppingCart(user.getId());
         Scanner scan = new Scanner(System.in);
@@ -733,6 +836,30 @@ public class MainMenu extends IMenu {
 
     }
 
+    private String checkOutPage(){
+
+        String page = "";
+
+        page += displayTextBanner1("Shopping cart");
+        // line 3
+        page += displayBlankLine1(6);
+        // line 9
+        page += displayTextMiddle1("Shoping cart total");
+        // line 10
+        page += displayTextMiddle1(String.valueOf("$" + orderService.getShoppingCartSum(user.getId())/100.0));
+        // line 11
+        page += displayTextMiddle1("Would you like to check out?");
+        // line 12
+        page += displayBlankLine1(6);
+        // line 18
+        page += displayLine1();
+        // line 19
+        page += displayTextMiddle1("Enter y to confirm purchase (x to exit)");
+        // line 20
+        return page;
+    }
+
+    // need to handle exception
     private void checkOut(){
         // displays total of cart
         // promts users if they want to check out
@@ -740,36 +867,41 @@ public class MainMenu extends IMenu {
         Scanner scan = new Scanner(System.in);
         List<Orders> shoppingCart = orderService.getShoppingCart(user.getId());
 
+
         String input;
 
-        displayTextMiddle("Shoping cart total");
+        while (true) {
 
-        displayTextMiddle(String.valueOf("$" + orderService.getShoppingCartSum(user.getId())/100.0));
+            System.out.println(checkOutPage());
+            input = scan.nextLine();
 
-        displayTextMiddle("Would you like to check out?");
+            if(input.equals("x")){return;}
 
-        input = scan.nextLine();
+            if (input.equals("y")) {
+                for (Orders order : shoppingCart) {
+                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                    ;
+                    order.setTimestamp(timestamp);
+                    // have to subtract 1 from inventory
 
-        if (input.equals("y")){
-            for (Orders order: shoppingCart){
-                Timestamp timestamp = new Timestamp(System.currentTimeMillis());;
-                order.setTimestamp(timestamp);
-                orderService.update(order);
+                    // chech if invory id greater than one
+
+                    if (inventoryService.getQty(order.getMovie_id(), order.getPhubox_id()) == 0) {
+                        System.out.println("Item no longer in stock. Removed from cart");
+                        // removes item from cart
+                        orderService.deleteByID(order.getId());
+                        return;
+                    }
+                    inventoryService.substract(order.getMovie_id(), order.getPhubox_id());
+                    orderService.update(order);
+                    return;
+                }
             }
+
         }
     }
 
-    private String  shoppingCartOptions(){
-        Scanner scan =new Scanner(System.in);
-        String input;
-        displayTextMiddle("[1] Check out shopping cart");
-        displayTextMiddle("[2] View shopping cart");
-        displayTextMiddle("[3] Delete item from shopping cart");
 
-        displayTextMiddle("[x] Back to Main Menu");
-        input = scan.nextLine();
-        return input;
-    }
 
     private boolean shoppingCartSelect(String input){
         switch(input) {

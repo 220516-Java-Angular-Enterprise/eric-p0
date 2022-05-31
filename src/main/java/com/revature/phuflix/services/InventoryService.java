@@ -29,6 +29,7 @@ public class InventoryService {
         inventoryDAO.update(inv);
     }
 
+    // will only get >0
     public Inventory getInventoryByIDs(String movie_id, String phubox_id){
         return inventoryDAO.getById(movie_id,phubox_id);
     }
@@ -38,5 +39,14 @@ public class InventoryService {
             return true;
         }
         throw new UserInputException("Please enter a number");
+    }
+
+    public void substract(String movie_id, String phubox_id) {
+        int qty = getQty(movie_id, phubox_id) -1;
+        inventoryDAO.orderDone(movie_id, phubox_id, qty);
+    }
+
+    public int getQty(String movie_id, String phubox_id) {
+        return inventoryDAO.getQTY(movie_id,phubox_id);
     }
 }

@@ -79,7 +79,7 @@ public class InventoryDAO implements CrudDAO<Inventory>{
     public List<Inventory> getAllbyPhuboxId(String id) {
         List<Inventory> inventories = new ArrayList<>();
         try {
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM inventory WHERE phubox_id = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM inventory WHERE phubox_id = ? AND qty > 0");
             ps.setString(1,id);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
@@ -90,5 +90,33 @@ public class InventoryDAO implements CrudDAO<Inventory>{
             System.out.println("Failed in InventoryDAO");
         }
         return inventories;
+    }
+
+    public void orderDone(String movie_id, String phubox_id, int qty) {
+        try {
+            PreparedStatement ps = con.prepareStatement("UPDATE inventory SET qty = ? WHERE movie_id = ? AND phubox_id = ?");
+            ps.setInt(1, qty);
+            ps.setString(2, movie_id);
+            ps.setString(3, phubox_id);
+            ps.executeUpdate();
+
+        }catch (SQLException e){
+            throw new RuntimeException("An error occurred when trying to save to the database");
+        }
+    }
+
+    public int getQTY(String movie_id, String phubox_id) {
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM inventory WHERE movie_id = ? AND phubox_id = ?");
+            ps.setString(1,movie_id);
+            ps.setString(2, phubox_id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+
+            return rs.getInt("qty");
+
+        }catch(SQLException e){
+            throw new UserInputException("Error getting SQL");
+        }
     }
 }

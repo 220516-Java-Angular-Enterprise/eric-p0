@@ -120,7 +120,7 @@ public class AdminMenu extends IMenu {
                             displayTextBanner("Enter House Number: ");
                             // line = 4
 
-                            displayBlankLine(14);
+                            displayBlankLine(15);
 
                             displayLine();
                             // line =  19
@@ -128,6 +128,11 @@ public class AdminMenu extends IMenu {
                             //line = 20
 
                             streetNumber = scan.nextLine();
+
+                            if (streetNumber.equals("x")){
+                                System.out.println("Back to main menu");
+                                return;
+                            }
                             try {
                                 if (phuboxService.isValidStreetNumber(streetNumber)) {
                                     break;
