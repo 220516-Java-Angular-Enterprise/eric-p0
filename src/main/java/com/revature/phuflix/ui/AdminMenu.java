@@ -29,11 +29,41 @@ public class AdminMenu extends IMenu {
 
     @Override
     public void start() {
-        adminWelcome();
-        while (select1(options())){
-            adminWelcome();
+        Scanner scan = new Scanner(System.in);
+
+        String pageMain = "";
+        pageMain += adminPage();
+
+        System.out.println(pageMain);
+        String input = scan.nextLine();
+        while (select1(input)){
+            System.out.println(pageMain);
+            input = scan.nextLine();
         }
 
+    }
+
+    private String adminPage(){
+        String page = "";
+
+        page += adminWelcome1();
+        // line 5
+        page += displayBlankLine1(1);
+        // line 6
+        page += displayTextBanner1("Hello " + user.getUsername() + "!");
+        // line 9
+        page += displayBlankLine1(2);
+        // line 11
+        page += options();
+        //line 16
+        page += displayBlankLine1(2);
+        // line 18
+        page += displayLine1();
+        // line 19
+        page+= displayTextMiddle1("Enter:");
+        //line 20
+
+        return page;
     }
 
     private void adminWelcome(){
@@ -48,21 +78,27 @@ public class AdminMenu extends IMenu {
         // 8 lines
     }
 
+    private String adminWelcome1(){
+        String page="";
+        page += displayTextMiddle1(" ___       __          _");
+        page += displayTextMiddle1("   /   | ____/ /___ ___  (_)___");
+        page += displayTextMiddle1("  / /| |/ __  / __ `__ \\/ / __");
+        page += displayTextMiddle1("  / ___ / /_/ / / / / / / / / / /");
+        page += displayTextMiddle1("/_/  |_\\__,_/_/ /_/ /_/_/_/ /_/");
+
+        return page;
+    }
+
     private String options(){
-        Scanner scan =new Scanner(System.in);
-        String input;
-        displayTextMiddle("[1] Add Phubox");
-        displayTextMiddle("[2] Add Inventory");
-        displayTextMiddle("[3] Add New Movie");
+        // line 5
+        String page = "";
+        page += displayTextMiddle1("[1] Add Phubox");
+        page += displayTextMiddle1("[2] Add Inventory");
+        page += displayTextMiddle1("[3] Add New Movie");
+        page += displayTextMiddle1("[4] View Users");
+        page += displayTextMiddle1("[x] Sign Out");
 
-        displayTextMiddle("[4] View Users");
-        displayTextMiddle("[5] Delete Users");
-        displayTextMiddle("[x] Sign Out");
-        displayLine();
-
-        System.out.println("Enter: ");
-        input = scan.nextLine();
-        return input;
+        return page;
         // 8 lines
     }
 
@@ -74,7 +110,11 @@ public class AdminMenu extends IMenu {
                 newPhubox();
                 return true;
             case "2":
-                addMovieInventory();
+                try {
+                    addMovieInventory();
+                }catch (Exception e){
+                    System.out.println("Back to main menu");
+                }
                 return true;
             case "3":
                 addMovie();
@@ -96,6 +136,7 @@ public class AdminMenu extends IMenu {
                 return true;
         }
     }
+
 
     private void newPhubox(){
         Scanner scan = new Scanner(System.in);
@@ -162,7 +203,10 @@ public class AdminMenu extends IMenu {
                             // line 20
                             streetName = scan.nextLine();
 
-                            if (streetName.equals("x")){break begin;}
+                            if (streetName.equals("x")){
+                                System.out.println("Back to main menu");
+                                return;
+                            }
 
                             try {
                                 if (phuboxService.isValidStreetName(streetName)) {
@@ -193,7 +237,10 @@ public class AdminMenu extends IMenu {
                             // line 20
 
                             streetType = scan.nextLine();
-                            if (streetType.equals("x")){break begin;}
+                            if (streetType.equals("x")) {
+                                System.out.println("Back to main menu");
+                                return;
+                            }
                             try {
                                 if (phuboxService.isValidStreetType(streetType)) {
                                     break;
@@ -233,7 +280,7 @@ public class AdminMenu extends IMenu {
                                     case "y":
                                         break confirm;
                                     case "x":
-                                        break begin;
+                                        return;
                                     default:
                                         displayTextMiddle("Invalid Input");
                                 }
@@ -267,7 +314,10 @@ public class AdminMenu extends IMenu {
                         displayTextMiddle("Enter City: ");
                         // line 20
                         city = scan.nextLine();
-                        if(city.equals("x")){break begin;}
+                        if (city.equals("x")) {
+                            System.out.println("Back to main menu");
+                            return;
+                        }
 
                         try {
                             phuboxService.isValidCity(city);
@@ -297,7 +347,10 @@ public class AdminMenu extends IMenu {
                         // line 20
 
                         state = scan.nextLine();
-                        if(state.equals("x")){break begin;}
+                        if (state.equals("x")) {
+                            System.out.println("Back to main menu");
+                            return;
+                        }
                         try {
                             phuboxService.isValidST(state);
                             break;
@@ -572,6 +625,7 @@ public class AdminMenu extends IMenu {
         displayTextMiddle("Inventory");
         //line 1
 
+        exit: {
 
             while (true) {
                 displayTextBanner("Quantity");
@@ -598,11 +652,12 @@ public class AdminMenu extends IMenu {
                 displayTextMiddle("Enter number of new Inventory");
                 // line 20
                 qtyInput = scan.nextLine();
-                if(inventoryService.isValidQuanity(qtyInput)){
+                if (inventoryService.isValidQuanity(qtyInput)) {
                     qty = Integer.parseInt(qtyInput);
-                    break;
+                    break exit;
                 }
-
+                System.out.println("Invalid input");
+            }
         }
         try {
             inventoryService.save(new Inventory(movie.getId(), box.getId(), qty));
@@ -618,21 +673,27 @@ public class AdminMenu extends IMenu {
 
     }
 
+    // need to fix ui
     private void addMovie(){
         Scanner scan = new Scanner(System.in);
         String movieTitle;
         String priceInput;
         int price = 0;
         String confirm;
+        String page1 = addMoviePg1();
 
         completeExit:
         {
             while (true) {
-                System.out.println("Adding Movie...");
 
-                System.out.println("Movie Title: ");
+
+                System.out.println(page1);
                 movieTitle = scan.nextLine();
-                newPage();
+
+                if(movieTitle.equals("x")){
+                    System.out.println("Back to main menu");
+                    return;
+                }
 
                 while (true) {
                     try {
@@ -640,39 +701,45 @@ public class AdminMenu extends IMenu {
                             break;
                         }
                     } catch (UserInputException e) {
-                        newPage();
+
                         System.out.println(e.getMessage());}
-                    System.out.println("Movie Title: ");
+                    System.out.println(page1);
                     movieTitle = scan.nextLine();
                 }
-                newPage();
+
+                String page2 = addMoviePg2(movieTitle);
+
+
                 while (true){
 
+                    System.out.println(page2);
+                    priceInput = scan.nextLine();
+
+                    if(priceInput.equals("x")){
+                        System.out.println("Back to main menu");
+                        return;
+                    }
+
                     try{
-                        newPage();
-                        System.out.println("Price : ");
-                        priceInput = scan.nextLine();
+
                         if(movieService.isValidPrice(priceInput)){
                             double temp = Double.parseDouble(priceInput) *100.0;
                             price = (int)temp;
                             break;
                         }
                     }catch (Exception e){
-                        newPage();
+
                         System.out.println("Invalid input. Try Again");
                     }
 
                 }
 
+                String page3 = addMoviePg3(movieTitle, priceInput);
+
                 confirmExit:
                 {
                     while (true) {
-                        newPage();
-                        System.out.println("\nPlease confirm your credentials (y/n)");
-                        System.out.println("\nTitle: " + movieTitle);
-                        System.out.println("Price: $" + price/100.0);
-
-                        System.out.print("\nEnter: ");
+                        System.out.println(page3);
                         String input = scan.nextLine();
 
                         switch(input) {
@@ -686,8 +753,11 @@ public class AdminMenu extends IMenu {
 
                                 break completeExit;
                             case "n":
-                                newPage();
+                                System.out.println("Adding movie title");
                                 break confirmExit;
+                            case "x":
+                                System.out.println("Back to main menu");
+                                return;
                             default:
                                 newPage();
                                 System.out.println("Invalid Input");
@@ -697,6 +767,73 @@ public class AdminMenu extends IMenu {
                 }
             }
         }
+    }
+
+    private String addMoviePg1(){
+        // line 19
+        String userNamePage = "";
+
+        userNamePage += displayTextBanner1("Movie Title");
+        // line 4
+        userNamePage += displayBlankLine1(6);
+        // line 10
+        userNamePage += displayTextMiddle1("Movie Title");
+        // line 11
+        userNamePage += displayTextMiddle1("No double spaces, or spaces in beginning or end ");
+        //line 12
+        userNamePage += displayBlankLine1(7);
+        // line 18
+        userNamePage += displayLine1();
+        // line 19
+        userNamePage += displayTextMiddle1("Enter (type x to exit to start menu):");
+        //line 20
+        return  userNamePage;
+    }
+
+    private String addMoviePg2(String movieTitle){
+        // line 19
+        String userNamePage = "";
+
+        userNamePage += displayTextBanner1("Price");
+        // line 4
+        userNamePage += displayBlankLine1(5);
+        // line 9
+        userNamePage += displayTextMiddle1("Movie Title: " + movieTitle);
+        // line 10
+        userNamePage += displayTextMiddle1("Please Enter movie price");
+        //line 11
+        userNamePage += displayTextMiddle1("Must be a decimal i.e (3.99)");
+        //line 11
+        userNamePage += displayBlankLine1(1);
+        //line 12
+        userNamePage += displayBlankLine1(6);
+        // line 18
+        userNamePage += displayLine1();
+        // line 19
+        userNamePage += displayTextMiddle1("Enter (type x to exit to start menu):");
+        //line 20
+        return  userNamePage;
+    }
+
+    private String addMoviePg3(String movieTitle, String moviePrice){
+        // line 19
+        String userNamePage = "";
+
+        userNamePage += displayTextBanner1("Confirm");
+        // line 4
+        userNamePage += displayBlankLine1(6);
+        // line 9
+        userNamePage += displayTextMiddle1("Movie Title: " + movieTitle);
+        // line 10
+        userNamePage += displayTextMiddle1("Movie Price: $" + moviePrice);
+        //line 11
+        userNamePage += displayBlankLine1(7);
+        // line 18
+        userNamePage += displayLine1();
+        // line 19
+        userNamePage += displayTextMiddle1("Enter y to confirm, n to beginning (x to start menu):");
+        //line 20
+        return  userNamePage;
     }
 
     //use as base for this

@@ -151,11 +151,14 @@ public class StartMenu extends IMenu {
             if (user.getRole().equals("ADMIN")){
                 new AdminMenu(user, new PhuboxService(new PhuboxDAO()), new InventoryService(new InventoryDAO()),
                         new MovieService(new MovieDAO()), new UserService(new UserDAO()), new OrderService(new OrderDAO())).start();
+
             }
             // normal login
             else{new MainMenu(user, new MovieService(new MovieDAO()),
                     new ReviewService(new ReviewDAO()), new PhuboxService(new PhuboxDAO()),
-                    new InventoryService(new InventoryDAO()), new OrderService(new OrderDAO())  ).start();}
+                    new InventoryService(new InventoryDAO()), new OrderService(new OrderDAO())  ).start();
+
+            }
         }catch (UserInputException e){
 
             String retryPage="";
@@ -186,7 +189,6 @@ public class StartMenu extends IMenu {
                 String input = scan.nextLine();
 
                 if ("y".equals(input)) {
-                    newPage();
                     login();
                 } else if(input.equals("n")){
                     System.out.println("Back to start menu");

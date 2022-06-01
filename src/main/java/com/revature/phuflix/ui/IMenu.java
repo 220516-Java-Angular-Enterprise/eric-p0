@@ -223,6 +223,25 @@ public abstract class IMenu {
 
     }
 
+    public String scoreToStars(double d){
+        int i = (int)Math.round(d);
+
+        if(i ==0){
+            return "No Reviews";
+        }else if(i == 1){
+            return "⭑⭒⭒⭒⭒";
+        }else if(i == 2){
+            return "⭑⭑⭒⭒⭒";
+        }else if(i == 3){
+            return "⭑⭑⭑⭒⭒";
+        }else if(i == 4){
+            return "⭑⭑⭑⭑⭒";
+        }else{
+            return "⭑⭑⭑⭑⭑";
+        }
+
+    }
+
 
 
 
