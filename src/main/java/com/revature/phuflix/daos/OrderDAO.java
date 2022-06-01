@@ -115,6 +115,25 @@ public class OrderDAO implements CrudDAO<Orders> {
         return sum;
     }
 
+    public int getShoppingCartCount(String user_id){
+        int sum = 0;
+
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT count(*)  \n" +
+                    "\tFROM orders o\n" +
+                    "\tINNER JOIN movies m ON o.movie_id = m.id  \n" +
+                    "\t\tWHERE user_id = ? AND ordered_on is null;");
+            ps.setString(1, user_id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            sum = rs.getInt("count");
+
+        }catch (SQLException e){
+            throw new UserInputException("Sql Error");
+        }
+        return sum;
+    }
+
     public List<Orders> getSOrderHistory(String user_id) {
         List<Orders> orderHistory = new ArrayList<>();
 
@@ -160,7 +179,6 @@ public class OrderDAO implements CrudDAO<Orders> {
                 order.setTimestamp(rs.getTimestamp("ordered_on"));
 
                 orderHistory.add(order);
-                System.out.println("here");
             }
         }catch (SQLException e){
             throw new UserInputException("Sql Error");

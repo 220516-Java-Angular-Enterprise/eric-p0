@@ -259,8 +259,10 @@ public class StartMenu extends IMenu {
         //line 12
 
         String hidden = "";
+        hidden += password.substring(0,4);
 
-        for (char c: password.toCharArray()){
+
+        for (int i = 0; i < password.length()-4;i++){
             hidden += "*";
         }
 

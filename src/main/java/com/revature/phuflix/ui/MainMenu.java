@@ -571,7 +571,7 @@ public class MainMenu extends IMenu {
         int displayBoxesPerPage = 1;
         int displayBoxesSize = 0;
 
-        tempPage = displayTextBanner1("This is a list of");
+        tempPage = displayTextBanner1("Phuboxes");
         // line 3
 
         // we will break out once we get our last page
@@ -603,10 +603,10 @@ public class MainMenu extends IMenu {
                 tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(boxes.size() / ((15 / displayBoxesSize) * 1.0)));
                 // line 19
 
-                tempPage += displayTextMiddle1("Text input opions");
+                tempPage += displayTextMiddle1("Select number, n for next, p for previous, x to main menu");
 
                 pages.add(tempPage);
-                tempPage = displayTextBanner1("This is a list of");
+                tempPage = displayTextBanner1("Phuboxes");
                 lines = 3;
                 counter++;
 
@@ -692,7 +692,7 @@ public class MainMenu extends IMenu {
                 int displayBoxesSize = 0;
                 String input = "";
 
-                tempPage = displayTextBanner1("This is a list of");
+                tempPage = displayTextBanner1("Delete Item");
                 // line 3
 
                 // we will break out once we get our last page
@@ -731,10 +731,10 @@ public class MainMenu extends IMenu {
                         tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(shoppingCart.size() / ((15 / displayBoxesSize) * 1.0)));
                         // line 19
 
-                        tempPage += displayTextMiddle1("Type n for next, p for previous, x to exit");
+                        tempPage += displayTextMiddle1("Select number, n for next, p for previous, x to main menu");
 
                         pages.add(tempPage);
-                        tempPage = displayTextBanner1("This is a list of");
+                        tempPage = displayTextBanner1("Delete Item");
                         lines = 3;
                         counter++;
 
@@ -766,7 +766,7 @@ public class MainMenu extends IMenu {
 
                                 // fix display
                                 Movies selectedMovie = movieService.getByID(selected.getMovie_id());
-                                displayTextMiddle("Are you sure you want to delete " + selectedMovie.getMovie_name() + " Enter y to confirm");
+                                displayTextMiddle("y to confirm. Are you sure you want to delete " + selectedMovie.getMovie_name() + "?");
 
 
                                 input = scan.nextLine();
@@ -831,7 +831,7 @@ public class MainMenu extends IMenu {
                 int displayBoxesSize = 0;
                 String input = "";
 
-                tempPage = displayTextBanner1("This is a list of");
+                tempPage = displayTextBanner1("Shopping Cart");
                 // line 3
 
                 // we will break out once we get our last page
@@ -866,10 +866,10 @@ public class MainMenu extends IMenu {
                         tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(shoppingCart.size() / ((15 / displayBoxesSize) * 1.0)));
                         // line 19
 
-                        tempPage += displayTextMiddle1("Type n for next, p for previous, x to exit");
+                        tempPage += displayTextMiddle1("n for next, p for previous, x to main menu");
 
                         pages.add(tempPage);
-                        tempPage = displayTextBanner1("This is a list of");
+                        tempPage = displayTextBanner1("Shoping cart");
                         lines = 3;
                         counter++;
 
@@ -948,6 +948,7 @@ public class MainMenu extends IMenu {
         // iterates throug shopping cart and set each item with a timestamp
         Scanner scan = new Scanner(System.in);
         List<Orders> shoppingCart = orderService.getShoppingCart(user.getId());
+        double sum = 0;
 
         try{
             shoppingCart.get(0);
@@ -959,6 +960,10 @@ public class MainMenu extends IMenu {
         String input;
 
         while (true) {
+            if(orderService.getShoppingCartCount(user.getId()) == 0){
+                System.out.println("Transaction Successful. $" + sum  + " was charges");
+                return;
+            }
 
             System.out.println(checkOutPage());
             input = scan.nextLine();
@@ -966,7 +971,8 @@ public class MainMenu extends IMenu {
             if(input.equals("x")){return;}
 
             if (input.equals("y")) {
-                System.out.println("Transaction Successful. $" + (orderService.getShoppingCartSum(user.getId())/100.0) + "was charges");
+                sum = (orderService.getShoppingCartSum(user.getId())/100.0);
+
                 for (Orders order : shoppingCart) {
                     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                     ;
@@ -983,7 +989,7 @@ public class MainMenu extends IMenu {
                     } else {
                         inventoryService.substract(order.getMovie_id(), order.getPhubox_id());
                         orderService.update(order);
-                        return;
+
                     }
                 }
             }
@@ -1041,7 +1047,7 @@ public class MainMenu extends IMenu {
                 int displayBoxesPerPage = 1;
                 int displayBoxesSize = 0;
 
-                tempPage = displayTextBanner1("This is a list of");
+                tempPage = displayTextBanner1("Order History");
                 // line 3
 
                 // we will break out once we get our last page
@@ -1080,10 +1086,10 @@ public class MainMenu extends IMenu {
                         tempPage += displayTextLine1(counter + "/" + (int) Math.ceil(orderHistory.size() / ((15 / displayBoxesSize) * 1.0)));
                         // line 19
 
-                        tempPage += displayTextMiddle1("Text input opions");
+                        tempPage += displayTextMiddle1("Select number, n for next, p for previous, x to main menu");
 
                         pages.add(tempPage);
-                        tempPage = displayTextBanner1("This is a list of");
+                        tempPage = displayTextBanner1("Order History");
                         lines = 3;
                         counter++;
 

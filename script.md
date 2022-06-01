@@ -4,10 +4,10 @@ Hello my name is Eric Phu. I am an enterprise Java Developer that works for Reva
 Phuflix is a website that handles Movie orders and review for users.
 
 Before I go through the product let me just show you my Junit test that validates that my methods for my services.
-work. There are 10 simple test that test ... (list methods tested)
+As you can see all my test pass.
 
 Ok.Next let me go through my er diagram so you can see Phuflix is able to hold and organize all this data. As you can 
-see Phuflix follows 3N.
+see Phuflix follows the 3rd form normal rule as there are no many to many relationships
 
 
 (Maybe go over diagram here)
@@ -85,9 +85,16 @@ type y to check out and congrats we bought our moviews now we just got to pick i
 
 (sign out of taco man)
 
-Now how does Phuflix handel its back end. Phuflix uses mysql as a back end and uses postgressql to communicate with
-that database. But because we dont want to type sql query every time we want to add things such as inventory
-we can do that stuff in the software through the admin page
+that should be enough of tacoman. 
+
+
+
+------------------
+
+
+That should be enough from the customer side. So how is inventory, movies or phuboxes entered through the software.
+This is done through the Admin page. To get there we have to sign out and login in with
+
 
 Here is the admin page. Here we have 4 options
 1. add a new phubox (which if we have time I can go over)
@@ -95,37 +102,18 @@ Here is the admin page. Here we have 4 options
 3. add a new movie to the database
 4. view user info.
 
-So I just noticed that phuflix has a new user and I wanted to see if what he ordered to indicate what kind of products
-to buy.
+So we just had a new user buy some movie. We can see that info by going to the view users option in this menu.
 
-(go to view users and then go to new user)
 
-woah this guy likes... thats good to know.
-
-Now lets go over how to add inventory first we select a movie that is in the database to add inventory.
+Now lets go over how to add inventory. We will select the add inventory option. We are then greeted with all the movies
+we can add. 
+first we select a movie that is in the database to add inventory.
 Then we select the phubox location we want to add. And finally we add tha ammount good.
 
-No lets say you are an existing Customer and you hear that Phuflix just added the movie to his phubox
-.... and you want to buy it
-first you want to check out your oder hisory because you have a budget of how much money you can spend on movies
-(populate this user with psedo data) 
 
-(log in)
 
-We can no go to view order history.
+---
 
-(view order history)
-
-And lets sort for the most recent order. Oh so Tom has only spent ... this month (I hard coded in postgres
-some psudo data to display this funtion) so he has more than enough to buy it. So he goes to the box and adds it to
-his cart.
-
-That should be all the MVP. Now that I have extra time I can go through some other features of phuflix.
-
-Lets say ... wants to leave a review. He will go to the leave a review tab...
-
-(Go to leave a review)
-
-...
-
+So that is the experience if are a new user. What about if you are an existing user, Lets go back to the start
+menu and login in with an already created username.
 

@@ -28,6 +28,10 @@ public class OrderService {
         return orderDAO.getShoppingCartSum(user_id);
     }
 
+    public int getShoppingCartCount(String user_id){
+        return orderDAO.getShoppingCartCount(user_id);
+    }
+
     public void update(Orders order){
         orderDAO.update(order);
     }
